@@ -271,6 +271,40 @@
             } 
         }
 
+        // Fonction utilitaire pour gérer les réponses API avec gestion d'erreur améliorée
+        async function handleApiResponse(response) {
+            const contentType = response.headers.get('content-type');
+            
+            if (!response.ok) {
+                let errorMessage = `Erreur ${response.status}: ${response.statusText}`;
+                
+                try {
+                    if (contentType && contentType.includes('application/json')) {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } else {
+                        const textError = await response.text();
+                        // Si la réponse commence par "A server error", c'est probablement une erreur HTML
+                        if (textError.startsWith('A server error') || textError.includes('<html>')) {
+                            errorMessage = 'Erreur serveur interne. Vérifiez la configuration de l\'API.';
+                        } else {
+                            errorMessage = textError.substring(0, 200) + '...';
+                        }
+                    }
+                } catch (parseError) {
+                    console.error('Erreur lors du parsing de la réponse d\'erreur:', parseError);
+                }
+                
+                throw new Error(errorMessage);
+            }
+            
+            if (contentType && contentType.includes('application/json')) {
+                return await response.json();
+            } else {
+                return await response.text();
+            }
+        }
+
         // --- Fonctions de l'Application ---
         async function handleLogin() {
             const username = document.getElementById('username').value.trim();
@@ -290,14 +324,12 @@
                 const response = await fetch('/api/login', { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ username, password }) 
+                    body: JSON.stringify({ username, password }),
+                    timeout: 10000
                 });
-                const result = await response.json();
                 
-                if (!response.ok) {
-                    throw new Error(result.message || "Échec connexion.");
-                }
-
+                const result = await handleApiResponse(response);
+                
                 if (!admins.has(username)) {
                     if (selectedSection === 'garcons' && !garconsTeachers.has(username)) {
                         throw new Error(`Utilisateur non autorisé dans la section Garçons.`);
@@ -339,6 +371,7 @@
                 resetMainContent();
                 displayAlert('welcome_user', false, { user: loggedInUser });
             } catch (error) {
+                console.error('Erreur de connexion:', error);
                 errorDiv.textContent = error.message;
             } finally {
                 setButtonLoading(document.getElementById('login-button'), false, 'fas fa-sign-in-alt');
@@ -397,13 +430,12 @@
             displayAlert('loading_data_week', false, { week });
             
             try {
-                const response = await fetch(`/api/plans/${week}?section=${selectedSection}`);
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erreur serveur.');
-                }
+                const response = await fetch(`/api/plans/${week}?section=${selectedSection}`, {
+                    timeout: 15000
+                });
                 
-                const result = await response.json();
+                const result = await handleApiResponse(response);
+                
                 planData = result.planData || [];
                 weeklyClassNotes = result.classNotes || {};
                 headers = planData.length > 0 ? Object.keys(planData[0]).filter(h => h !== '_id' && h !== 'id') : [];
@@ -534,13 +566,11 @@
                         week: selectedWeek, 
                         data: uploadedPlanData, 
                         section: selectedSection 
-                    }) 
+                    }),
+                    timeout: 30000
                 });
                 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erreur serveur');
-                }
+                await handleApiResponse(response);
                 
                 displayAlert('uploaded_data_saved', false, { week: selectedWeek });
                 
@@ -574,15 +604,12 @@
                         week: currentWeek, 
                         data: rowData, 
                         section: selectedSection 
-                    }) 
+                    }),
+                    timeout: 15000
                 });
                 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erreur de sauvegarde de la ligne.');
-                }
+                const result = await handleApiResponse(response);
                 
-                const result = await response.json();
                 tableRowElement.classList.remove('modified');
                 const indicator = tableRowElement.querySelector('.save-indicator');
                 if (indicator) indicator.style.display = 'inline-block';
@@ -627,11 +654,13 @@
                             week: currentWeek, 
                             data: rowData, 
                             section: selectedSection 
-                        }) 
+                        }),
+                        timeout: 10000
                     });
-                    if (!response.ok) throw new Error();
+                    await handleApiResponse(response);
                     successCount++;
                 } catch (e) { 
+                    console.error('Erreur sauvegarde ligne:', e);
                     errorCount++; 
                 }
             }
@@ -675,9 +704,14 @@
                     const response = await fetch('/api/generate-word', { 
                         method: 'POST', 
                         headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify(payload) 
+                        body: JSON.stringify(payload),
+                        timeout: 30000
                     });
-                    if (!response.ok) throw new Error(`Erreur pour la classe ${className}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Erreur pour la classe ${className}`);
+                    }
+                    
                     const blob = await response.blob();
                     const filename = `Plan_${selectedSection}_S${currentWeek}_${className}.docx`;
                     saveAs(blob, filename);
@@ -709,12 +743,12 @@
                     body: JSON.stringify({ 
                         week: currentWeek, 
                         section: selectedSection 
-                    }) 
+                    }),
+                    timeout: 30000
                 });
                 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erreur de génération du fichier Excel.');
+                    throw new Error('Erreur de génération du fichier Excel.');
                 }
                 
                 const blob = await response.blob();
@@ -735,12 +769,12 @@
             select.disabled = true;
             
             try {
-                const response = await fetch(`/api/all-classes?section=${selectedSection}`);
-                if (!response.ok) {
-                    throw new Error(`Erreur serveur ${response.status}`);
-                }
+                const response = await fetch(`/api/all-classes?section=${selectedSection}`, {
+                    timeout: 10000
+                });
                 
-                const classes = await response.json();
+                const classes = await handleApiResponse(response);
+                
                 if (classes && classes.length > 0) {
                     select.innerHTML = `<option value="">${t('select_report_class')}</option>`;
                     classes.sort(compareClasses).forEach(cls => { 
@@ -756,7 +790,7 @@
                 }
             } catch (error) { 
                 console.error('Erreur chargement classes:', error);
-                select.innerHTML = `<option value="">Erreur chargement</option>`; 
+                select.innerHTML = `<option value="">Erreur: ${error.message}</option>`; 
             }
         }
 
@@ -776,7 +810,8 @@
                     body: JSON.stringify({ 
                         classe: selectedClass, 
                         section: selectedSection 
-                    }) 
+                    }),
+                    timeout: 60000
                 });
                 
                 if (response.ok) {
@@ -785,8 +820,7 @@
                     saveAs(blob, filename);
                     displayAlert('generating_full_report_success', false, { classe: selectedClass });
                 } else { 
-                    const errorData = await response.json();
-                    throw new Error(errorData.message); 
+                    const errorData = await handleApiResponse(response);
                 }
             } catch (error) { 
                 console.error('Erreur génération rapport:', error);
@@ -858,13 +892,11 @@
                         classe: selCls, 
                         notes: notesVal, 
                         section: selectedSection 
-                    }) 
+                    }),
+                    timeout: 10000
                 });
                 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erreur sauvegarde.');
-                }
+                await handleApiResponse(response);
                 
                 weeklyClassNotes[selCls] = notesVal;
                 displayAlert('notes_saved_success', false, { class: selCls, week: currentWeek });
