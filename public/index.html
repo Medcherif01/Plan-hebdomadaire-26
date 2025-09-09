@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plans Hebdomadaires - Sélection</title>
+    <title>Plans Hebdomadaires</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,31 +14,17 @@
 </head>
 <body dir="ltr">
 
-    <!-- ======================== -->
-    <!-- NOUVEL ÉCRAN DE SÉLECTION -->
-    <!-- ======================== -->
-    <div id="section-choice-screen">
-        <img id="logo-choice" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo Al-Kawthar">
-        <h1>Veuillez choisir votre section</h1>
-        <div class="section-buttons-container">
-            <button id="btn-select-garcons" class="pro-button section-choice-button">
-                <i class="fas fa-male"></i> Section des Garçons
-            </button>
-            <button id="btn-select-filles" class="pro-button section-choice-button">
-                <i class="fas fa-female"></i> Section des Filles
-            </button>
-        </div>
-    </div>
-
-
-    <!-- ======================== -->
-    <!-- FORMULAIRE DE CONNEXION (caché au début) -->
-    <!-- ======================== -->
-    <div id="login-form" style="display: none;">
-        <button id="back-to-section-choice" class="back-button"><i class="fas fa-arrow-left"></i> Retour</button>
+    <!-- FORMULAIRE DE CONNEXION -->
+    <div id="login-form">
         <img id="logo" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo Al-Kawthar">
-        <h1 id="login-title">Connexion</h1> <!-- Le titre sera mis à jour par JS -->
-        
+        <h1>Connexion</h1>
+        <div class="section-selector-container" style="width: 100%; margin-bottom: 15px;">
+            <label for="sectionSelectorLogin" style="display: block; margin-bottom: 5px; font-weight: 500;"><i class="fas fa-school"></i> Section :</label>
+            <select id="sectionSelectorLogin" style="width: 100%; padding: 10px; border: 1px solid #dee2e6; border-radius: 5px; box-sizing: border-box;">
+                <option value="garcons">Garçons</option>
+                <option value="filles">Filles</option>
+            </select>
+        </div>
         <div>
             <label for="username">Nom d'utilisateur (Enseignant) :</label>
             <input type="text" id="username" name="username" required>
@@ -56,10 +42,10 @@
         <p id="login-error"></p>
     </div>
 
-    <!-- ======================== -->
-    <!-- CONTENU PRINCIPAL        -->
-    <!-- ======================== -->
+    <!-- CONTENU PRINCIPAL -->
     <div id="main-content" style="display: none;">
+        <!-- ... (Toute la structure HTML de votre contenu principal reste identique) ... -->
+        <!-- J'inclus tout ici pour que le fichier soit complet -->
         <div class="main-header-container">
             <img id="logo-main" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo Al-Kawthar">
             <div class="title-user-info">
@@ -73,16 +59,11 @@
                  </div>
             </div>
         </div>
-
-        <button id="toggleIncompleteBtn" onclick="toggleIncompleteList()" class="pro-button toggle-incomplete-btn">
-             <i class="fas fa-list-check"></i> <span class="btn-text">Afficher Incomplets</span>
-        </button>
-
+        <button id="toggleIncompleteBtn" onclick="toggleIncompleteList()" class="pro-button toggle-incomplete-btn"><i class="fas fa-list-check"></i> <span class="btn-text">Afficher Incomplets</span></button>
         <div id="incompleteTeachersDisplay" style="display: none;">
             <h4>Enseignants Incomplets (Travaux)</h4>
             <ul id="incompleteList"><li>Chargement...</li></ul>
         </div>
-
         <div class="filter-container week-selector-container">
             <label for="weekSelector"><i class="fas fa-calendar-week"></i> Semaine:</label>
             <select id="weekSelector" onchange="loadPlanForWeek()">
@@ -90,42 +71,29 @@
                  <option value="1">Semaine 1</option><option value="2">Semaine 2</option><option value="3">Semaine 3</option><option value="4">Semaine 4</option><option value="5">Semaine 5</option><option value="6">Semaine 6</option><option value="7">Semaine 7</option><option value="8">Semaine 8</option><option value="9">Semaine 9</option><option value="10">Semaine 10</option><option value="11">Semaine 11</option><option value="12">Semaine 12</option><option value="13">Semaine 13</option><option value="14">Semaine 14</option><option value="15">Semaine 15</option><option value="16">Semaine 16</option><option value="17">Semaine 17</option><option value="18">Semaine 18</option><option value="19">Semaine 19</option><option value="20">Semaine 20</option><option value="21">Semaine 21</option><option value="22">Semaine 22</option><option value="23">Semaine 23</option><option value="24">Semaine 24</option><option value="25">Semaine 25</option><option value="26">Semaine 26</option><option value="27">Semaine 27</option><option value="28">Semaine 28</option><option value="29">Semaine 29</option><option value="30">Semaine 30</option><option value="31">Semaine 31</option><option value="32">Semaine 32</option><option value="33">Semaine 33</option><option value="34">Semaine 34</option><option value="35">Semaine 35</option><option value="36">Semaine 36</option><option value="37">Semaine 37</option><option value="38">Semaine 38</option><option value="39">Semaine 39</option><option value="40">Semaine 40</option><option value="41">Semaine 41</option><option value="42">Semaine 42</option><option value="43">Semaine 43</option><option value="44">Semaine 44</option><option value="45">Semaine 45</option><option value="46">Semaine 46</option><option value="47">Semaine 47</option><option value="48">Semaine 48</option>
             </select>
         </div>
-
         <div id="admin-actions" class="filter-container admin-section" style="display: none;">
              <h3 id="admin-title">Actions Administrateur</h3>
              <div>
                 <label for="excelFileInput" id="admin-excel-label"><i class="fas fa-file-excel"></i> Fichier Excel :</label>
                 <input type="file" id="excelFileInput" accept=".xlsx, .xls" onchange="handleFileUpload(event)">
              </div>
-             <button id="saveUploadedDataBtn" onclick="saveUploadedData()" disabled class="pro-button accent-button">
-                 <i class="fas fa-database"></i> <span class="btn-text">Charger et Enregistrer dans la DB</span>
-             </button>
+             <button id="saveUploadedDataBtn" onclick="saveUploadedData()" disabled class="pro-button accent-button"><i class="fas fa-database"></i> <span class="btn-text">Charger et Enregistrer dans la DB</span></button>
              <span id="file-upload-status" style="font-size: 0.9em;"></span>
              <div class="admin-subsection">
                 <label for="adminReportClassSelector" id="admin-report-class-label"><i class="fas fa-school"></i> Choisir une Classe :</label>
                 <select id="adminReportClassSelector"><option value="">-- D'abord charger les classes --</option></select>
-                <button id="generateFullReportBtn" onclick="generateFullReportByClass()" class="pro-button success-button">
-                    <i class="fas fa-file-invoice"></i> <span class="btn-text">Générer Rapport Complet par Classe</span>
-                </button>
+                <button id="generateFullReportBtn" onclick="generateFullReportByClass()" class="pro-button success-button"><i class="fas fa-file-invoice"></i> <span class="btn-text">Générer Rapport Complet par Classe</span></button>
              </div>
              <div style="width: 100%; margin-top: 10px; font-size: 0.85em; color: var(--muted-text); border-top: 1px dashed var(--border-color); padding-top: 10px;">
                  <i class="fas fa-info-circle"></i> **Note:** La fonction d'upload et d'extraction automatique depuis des fichiers Word ou PDF n'est pas implémentée.
              </div>
         </div>
-
         <div class="filter-container main-actions-container">
-            <button id="generateWordBtn" onclick="generateWordByClasse()" class="action-button pro-button" disabled>
-                 <i class="fas fa-file-word"></i> <span class="btn-text">Générer Word par Classe</span>
-            </button>
-            <button id="generateExcelBtn" onclick="generateExcelWorkbook()" class="action-button pro-button" disabled>
-                 <i class="fas fa-file-excel"></i> <span class="btn-text">Générer Excel (1 Fichier)</span>
-            </button>
-             <button id="saveAllDisplayedBtn" onclick="saveAllDisplayedRows()" class="action-button save-all-button pro-button" disabled>
-                <i class="fas fa-save"></i> <span class="btn-text">Enregistrer Lignes Affichées</span>
-            </button>
+            <button id="generateWordBtn" onclick="generateWordByClasse()" class="action-button pro-button" disabled><i class="fas fa-file-word"></i> <span class="btn-text">Générer Word par Classe</span></button>
+            <button id="generateExcelBtn" onclick="generateExcelWorkbook()" class="action-button pro-button" disabled><i class="fas fa-file-excel"></i> <span class="btn-text">Générer Excel (1 Fichier)</span></button>
+            <button id="saveAllDisplayedBtn" onclick="saveAllDisplayedRows()" class="action-button save-all-button pro-button" disabled><i class="fas fa-save"></i> <span class="btn-text">Enregistrer Lignes Affichées</span></button>
             <a id="downloadLink" style="display:none;"></a>
         </div>
-
         <div class="filter-container data-filters-container">
              <label for="filterEnseignant" id="filter-enseignant-label"><i class="fas fa-user-tie"></i> Enseignant:</label>
              <select id="filterEnseignant" onchange="sortAndDisplay()"> <option value="">Tous</option> </select>
@@ -140,32 +108,21 @@
                  <option value="">Tous</option><option value="Dimanche">Dimanche</option><option value="Lundi">Lundi</option><option value="Mardi">Mardi</option><option value="Mercredi">Mercredi</option><option value="Jeudi">Jeudi</option>
             </select>
         </div>
-
         <div id="message-alerte" style="display: none;"></div>
         <div id="progress-bar-container" style="display: none;"><div id="progress-bar">0%</div></div>
-
         <div class="notes-container">
             <label for="notesClassSelector" id="notes-class-label" style="font-weight: bold;"><i class="fas fa-sticky-note"></i> Notes pour la classe :</label>
             <select id="notesClassSelector" onchange="displayClassNotes()"><option value="">-- Sélectionnez une classe --</option></select>
             <textarea id="notesInput" rows="4" placeholder="Sélectionnez une classe pour voir ou ajouter des notes..." spellcheck="true" disabled dir="auto"></textarea>
             <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                <button id="saveNotesBtn" onclick="saveNotes()" class="action-button pro-button success-button" disabled>
-                    <i class="fas fa-save"></i> <span class="btn-text">Enregistrer Notes</span>
-                </button>
+                <button id="saveNotesBtn" onclick="saveNotes()" class="action-button pro-button success-button" disabled><i class="fas fa-save"></i> <span class="btn-text">Enregistrer Notes</span></button>
                 <span id="notes-save-status" style="font-size: 0.9em;"></span>
             </div>
         </div>
-
         <div class="table-responsive-wrapper">
             <table id="planTable">
                 <thead> <tr></tr> </thead>
-                <tbody>
-                     <tr id="initial-table-row">
-                         <td colspan="10" style="text-align:center; padding: 20px; color: grey;" id="initial-table-message">
-                             Veuillez sélectionner une semaine pour afficher les données.
-                         </td>
-                     </tr>
-                </tbody>
+                <tbody><tr id="initial-table-row"><td colspan="10" style="text-align:center; padding: 20px; color: grey;" id="initial-table-message">Veuillez sélectionner une semaine pour afficher les données.</td></tr></tbody>
             </table>
         </div>
     </div>
@@ -596,3 +553,4 @@
     </script>
 </body>
 </html>
+
