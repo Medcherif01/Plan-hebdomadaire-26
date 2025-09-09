@@ -14,10 +14,13 @@
 </head>
 <body dir="ltr">
 
-    <!-- FORMULAIRE DE CONNEXION -->
+    <!-- ======================== -->
+    <!-- FORMULAIRE DE CONNEXION  -->
+    <!-- ======================== -->
     <div id="login-form">
         <img id="logo" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo Al-Kawthar">
         <h1>Connexion</h1>
+        
         <div class="section-selector-container" style="width: 100%; margin-bottom: 15px;">
             <label for="sectionSelectorLogin" style="display: block; margin-bottom: 5px; font-weight: 500;"><i class="fas fa-school"></i> Section :</label>
             <select id="sectionSelectorLogin" style="width: 100%; padding: 10px; border: 1px solid #dee2e6; border-radius: 5px; box-sizing: border-box;">
@@ -25,6 +28,7 @@
                 <option value="filles">Filles</option>
             </select>
         </div>
+
         <div>
             <label for="username">Nom d'utilisateur (Enseignant) :</label>
             <input type="text" id="username" name="username" required>
@@ -42,10 +46,10 @@
         <p id="login-error"></p>
     </div>
 
-    <!-- CONTENU PRINCIPAL -->
+    <!-- ======================== -->
+    <!-- CONTENU PRINCIPAL        -->
+    <!-- ======================== -->
     <div id="main-content" style="display: none;">
-        <!-- ... (Toute la structure HTML de votre contenu principal reste identique) ... -->
-        <!-- J'inclus tout ici pour que le fichier soit complet -->
         <div class="main-header-container">
             <img id="logo-main" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo Al-Kawthar">
             <div class="title-user-info">
@@ -59,11 +63,16 @@
                  </div>
             </div>
         </div>
-        <button id="toggleIncompleteBtn" onclick="toggleIncompleteList()" class="pro-button toggle-incomplete-btn"><i class="fas fa-list-check"></i> <span class="btn-text">Afficher Incomplets</span></button>
+
+        <button id="toggleIncompleteBtn" onclick="toggleIncompleteList()" class="pro-button toggle-incomplete-btn">
+             <i class="fas fa-list-check"></i> <span class="btn-text">Afficher Incomplets</span>
+        </button>
+
         <div id="incompleteTeachersDisplay" style="display: none;">
             <h4>Enseignants Incomplets (Travaux)</h4>
             <ul id="incompleteList"><li>Chargement...</li></ul>
         </div>
+
         <div class="filter-container week-selector-container">
             <label for="weekSelector"><i class="fas fa-calendar-week"></i> Semaine:</label>
             <select id="weekSelector" onchange="loadPlanForWeek()">
@@ -71,29 +80,42 @@
                  <option value="1">Semaine 1</option><option value="2">Semaine 2</option><option value="3">Semaine 3</option><option value="4">Semaine 4</option><option value="5">Semaine 5</option><option value="6">Semaine 6</option><option value="7">Semaine 7</option><option value="8">Semaine 8</option><option value="9">Semaine 9</option><option value="10">Semaine 10</option><option value="11">Semaine 11</option><option value="12">Semaine 12</option><option value="13">Semaine 13</option><option value="14">Semaine 14</option><option value="15">Semaine 15</option><option value="16">Semaine 16</option><option value="17">Semaine 17</option><option value="18">Semaine 18</option><option value="19">Semaine 19</option><option value="20">Semaine 20</option><option value="21">Semaine 21</option><option value="22">Semaine 22</option><option value="23">Semaine 23</option><option value="24">Semaine 24</option><option value="25">Semaine 25</option><option value="26">Semaine 26</option><option value="27">Semaine 27</option><option value="28">Semaine 28</option><option value="29">Semaine 29</option><option value="30">Semaine 30</option><option value="31">Semaine 31</option><option value="32">Semaine 32</option><option value="33">Semaine 33</option><option value="34">Semaine 34</option><option value="35">Semaine 35</option><option value="36">Semaine 36</option><option value="37">Semaine 37</option><option value="38">Semaine 38</option><option value="39">Semaine 39</option><option value="40">Semaine 40</option><option value="41">Semaine 41</option><option value="42">Semaine 42</option><option value="43">Semaine 43</option><option value="44">Semaine 44</option><option value="45">Semaine 45</option><option value="46">Semaine 46</option><option value="47">Semaine 47</option><option value="48">Semaine 48</option>
             </select>
         </div>
+
         <div id="admin-actions" class="filter-container admin-section" style="display: none;">
              <h3 id="admin-title">Actions Administrateur</h3>
              <div>
                 <label for="excelFileInput" id="admin-excel-label"><i class="fas fa-file-excel"></i> Fichier Excel :</label>
                 <input type="file" id="excelFileInput" accept=".xlsx, .xls" onchange="handleFileUpload(event)">
              </div>
-             <button id="saveUploadedDataBtn" onclick="saveUploadedData()" disabled class="pro-button accent-button"><i class="fas fa-database"></i> <span class="btn-text">Charger et Enregistrer dans la DB</span></button>
+             <button id="saveUploadedDataBtn" onclick="saveUploadedData()" disabled class="pro-button accent-button">
+                 <i class="fas fa-database"></i> <span class="btn-text">Charger et Enregistrer dans la DB</span>
+             </button>
              <span id="file-upload-status" style="font-size: 0.9em;"></span>
              <div class="admin-subsection">
                 <label for="adminReportClassSelector" id="admin-report-class-label"><i class="fas fa-school"></i> Choisir une Classe :</label>
                 <select id="adminReportClassSelector"><option value="">-- D'abord charger les classes --</option></select>
-                <button id="generateFullReportBtn" onclick="generateFullReportByClass()" class="pro-button success-button"><i class="fas fa-file-invoice"></i> <span class="btn-text">Générer Rapport Complet par Classe</span></button>
+                <button id="generateFullReportBtn" onclick="generateFullReportByClass()" class="pro-button success-button">
+                    <i class="fas fa-file-invoice"></i> <span class="btn-text">Générer Rapport Complet par Classe</span>
+                </button>
              </div>
              <div style="width: 100%; margin-top: 10px; font-size: 0.85em; color: var(--muted-text); border-top: 1px dashed var(--border-color); padding-top: 10px;">
                  <i class="fas fa-info-circle"></i> **Note:** La fonction d'upload et d'extraction automatique depuis des fichiers Word ou PDF n'est pas implémentée.
              </div>
         </div>
+
         <div class="filter-container main-actions-container">
-            <button id="generateWordBtn" onclick="generateWordByClasse()" class="action-button pro-button" disabled><i class="fas fa-file-word"></i> <span class="btn-text">Générer Word par Classe</span></button>
-            <button id="generateExcelBtn" onclick="generateExcelWorkbook()" class="action-button pro-button" disabled><i class="fas fa-file-excel"></i> <span class="btn-text">Générer Excel (1 Fichier)</span></button>
-            <button id="saveAllDisplayedBtn" onclick="saveAllDisplayedRows()" class="action-button save-all-button pro-button" disabled><i class="fas fa-save"></i> <span class="btn-text">Enregistrer Lignes Affichées</span></button>
+            <button id="generateWordBtn" onclick="generateWordByClasse()" class="action-button pro-button" disabled>
+                 <i class="fas fa-file-word"></i> <span class="btn-text">Générer Word par Classe</span>
+            </button>
+            <button id="generateExcelBtn" onclick="generateExcelWorkbook()" class="action-button pro-button" disabled>
+                 <i class="fas fa-file-excel"></i> <span class="btn-text">Générer Excel (1 Fichier)</span>
+            </button>
+             <button id="saveAllDisplayedBtn" onclick="saveAllDisplayedRows()" class="action-button save-all-button pro-button" disabled>
+                <i class="fas fa-save"></i> <span class="btn-text">Enregistrer Lignes Affichées</span>
+            </button>
             <a id="downloadLink" style="display:none;"></a>
         </div>
+
         <div class="filter-container data-filters-container">
              <label for="filterEnseignant" id="filter-enseignant-label"><i class="fas fa-user-tie"></i> Enseignant:</label>
              <select id="filterEnseignant" onchange="sortAndDisplay()"> <option value="">Tous</option> </select>
@@ -108,21 +130,32 @@
                  <option value="">Tous</option><option value="Dimanche">Dimanche</option><option value="Lundi">Lundi</option><option value="Mardi">Mardi</option><option value="Mercredi">Mercredi</option><option value="Jeudi">Jeudi</option>
             </select>
         </div>
+
         <div id="message-alerte" style="display: none;"></div>
         <div id="progress-bar-container" style="display: none;"><div id="progress-bar">0%</div></div>
+
         <div class="notes-container">
             <label for="notesClassSelector" id="notes-class-label" style="font-weight: bold;"><i class="fas fa-sticky-note"></i> Notes pour la classe :</label>
             <select id="notesClassSelector" onchange="displayClassNotes()"><option value="">-- Sélectionnez une classe --</option></select>
             <textarea id="notesInput" rows="4" placeholder="Sélectionnez une classe pour voir ou ajouter des notes..." spellcheck="true" disabled dir="auto"></textarea>
             <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                <button id="saveNotesBtn" onclick="saveNotes()" class="action-button pro-button success-button" disabled><i class="fas fa-save"></i> <span class="btn-text">Enregistrer Notes</span></button>
+                <button id="saveNotesBtn" onclick="saveNotes()" class="action-button pro-button success-button" disabled>
+                    <i class="fas fa-save"></i> <span class="btn-text">Enregistrer Notes</span>
+                </button>
                 <span id="notes-save-status" style="font-size: 0.9em;"></span>
             </div>
         </div>
+
         <div class="table-responsive-wrapper">
             <table id="planTable">
                 <thead> <tr></tr> </thead>
-                <tbody><tr id="initial-table-row"><td colspan="10" style="text-align:center; padding: 20px; color: grey;" id="initial-table-message">Veuillez sélectionner une semaine pour afficher les données.</td></tr></tbody>
+                <tbody>
+                     <tr id="initial-table-row">
+                         <td colspan="10" style="text-align:center; padding: 20px; color: grey;" id="initial-table-message">
+                             Veuillez sélectionner une semaine pour afficher les données.
+                         </td>
+                     </tr>
+                </tbody>
             </table>
         </div>
     </div>
@@ -174,7 +207,8 @@
             if (selectedSection === 'filles') return teachersToHideFilles.has(loggedInUser);
             return false;
         };
-        
+
+               // --- Traductions ---
         const translations = {
             fr: { 
                 login_title: "Connexion", login_username_label: "Nom d'utilisateur (Enseignant) :", login_password_label: "Mot de passe (idem Nom) :", login_button_text: "Se connecter", remember_me: "Rester connecté", logout_button: "Déconnecter", main_page_title: "Plans Hebdomadaires", week_label: "Semaine:", select_week: "-- Sélectionnez une semaine --", please_select_week: "Veuillez sélectionner une semaine.", admin_actions_title: "Actions Administrateur", admin_excel_label: "Fichier Excel :", admin_save_button: "Charger et Enregistrer dans la DB", generate_word_button: "Générer Word par Classe", generate_excel_button: "Générer Excel (1 Fichier)", save_all_button: "Enregistrer Lignes Affichées", filter_teacher_label: "Enseignant:", filter_class_label: "Classe:", filter_material_label: "Matière:", filter_period_label: "Période:", filter_day_label: "Jour:", all: "Tous", all_f: "Toutes", day_sun: "Dimanche", day_mon: "Lundi", day_tue: "Mardi", day_wed: "Mercredi", day_thu: "Jeudi", days: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"], fullDays: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Sábado"], months: ["Janv", "Fév", "Mars", "Avr", "Mai", "Juin", "Juil", "Août", "Sept", "Oct", "Nov", "Déc"], headers: { 'Leçon': 'Leçon', 'Travaux de classe': 'Travaux de classe', 'Support': 'Support', 'Devoirs': 'Devoirs', 'Enseignant': 'Enseignant', 'Classe': 'Classe', 'Matière': 'Matière', 'Période': 'Période', 'Jour': 'Jour' }, actions: "Actions", updated_at: "Mis à jour", notes_for_class: "Notes pour la classe :", select_class: "-- Sélectionnez une classe --", select_class_placeholder: "Sélectionnez une classe pour voir ou ajouter des notes...", notes_placeholder: "Notes pour {classText}...", save_notes_button: "Enregistrer Notes", saving: "Enregistrement...", saved: "Enregistré", saving_notes_for: "Enregistrement notes pour {class} S{week}", notes_saved_success: "Notes enregistrées pour {class}, S{week}.", error_saving_notes: "Erreur d'enregistrement des notes: {error}", display_incomplete: "Afficher Incomplets", hide_incomplete: "Masquer Incomplets", incomplete_teachers_title: "Enseignants Incomplets (Travaux)", loading: "Chargement...", no_data: "Aucune donnée.", all_complete: "Tout complet!", error_config_columns: "Erreur config colonnes.", welcome_user: "Bienvenue {user} ! Veuillez sélectionner une semaine.", connected_as: "Connecté: {user}", loading_data_week: "Chargement données S{week}...", data_loaded_week: "Données S{week} chargées.", no_data_found_week: "Aucune donnée trouvée pour S{week}.", error_loading_week: "Erreur chargement S{week}: {error}", select_week_to_display: "Veuillez sélectionner une semaine pour afficher les données.", error_structure: "Erreur: Structure de données non définie.", no_data_to_display_filters: "Aucune donnée à afficher avec les filtres actuels.", save_row_title: "Enregistrer cette ligne", invalid_row: "Ligne invalide.", error_saving_row: "Erreur enregistrement ligne: {error}", no_rows_to_save: "Aucune ligne affichée à enregistrer.", confirm_save_all: "Confirmer l'enregistrement des {count} lignes affichées pour la S{week}?", save_all_cancelled: "Enregistrement annulé.", saving_all_displayed: "Enregistrement des {count} lignes en cours...", save_all_success: "{count} lignes enregistrées avec succès.", save_all_partial: "Enregistrement terminé: {success} succès, {error} erreurs.", generating_word: "Génération de {count} document(s) Word...", generating_word_success: "{count} document(s) Word généré(s).", generating_word_partial: "Génération Word terminée: {ok} succès, {err} erreurs.", generating_word_failed: "Échec de la génération Word ({err} erreurs).", generating_excel: "Génération du fichier Excel S{week}...", generating_excel_success: "Fichier Excel '{filename}' généré.", error_generating_excel: "Erreur génération Excel: {error}", no_file_selected: "Aucun fichier sélectionné.", reading_file: "Lecture du fichier {fileName}...", file_read_success: "Fichier {fileName} lu ({count} lignes).", file_error: "Erreur lecture fichier: {error}", invalid_file_type: "Type de fichier invalide (.xlsx ou .xls requis).", saving_uploaded_data: "Enregistrement des données chargées pour S{week}...", uploaded_data_saved: "Données chargées enregistrées pour S{week}.", uploaded_data_error: "Erreur enregistrement données chargées: {error}", no_word_dates: "Génération Word: Dates manquantes côté serveur pour la semaine S{week}.",
@@ -203,25 +237,13 @@
 
         // --- Fonctions de l'Application ---
 
-        function showLoginScreen(section) {
-            selectedSection = section;
-            document.getElementById('section-choice-screen').style.display = 'none';
-            document.getElementById('login-form').style.display = 'flex';
-            document.getElementById('login-title').textContent = `Connexion - Section ${section.charAt(0).toUpperCase() + section.slice(1)}`;
-            document.getElementById('username').focus();
-        }
-
-        function showSectionChoiceScreen() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('section-choice-screen').style.display = 'flex';
-        }
-        
         async function handleLogin() {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('login-error');
             const rememberMeCheckbox = document.getElementById('rememberMe');
-            
+            selectedSection = document.getElementById('sectionSelectorLogin').value;
+
             errorDiv.textContent = '';
             if (!username || !password) { errorDiv.textContent = "Entrez nom d'utilisateur et mot de passe."; return; }
             setButtonLoading(document.getElementById('login-button'), true, 'fas fa-sign-in-alt');
@@ -265,11 +287,10 @@
         }
         
         function handleLogout() {
-            loggedInUser = null;
-            selectedSection = null;
+            loggedInUser = null; selectedSection = null;
             localStorage.removeItem('rememberedUser');
             document.getElementById('main-content').style.display = 'none';
-            showSectionChoiceScreen();
+            document.getElementById('login-form').style.display = 'block';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('login-error').textContent = '';
@@ -331,11 +352,17 @@
             finally { setButtonLoading(document.getElementById('saveUploadedDataBtn'), false, 'fas fa-database'); }
         }
 
+        // --- C'est ici que le code complet commence ---
+
         async function saveRow(rowData, tableRowElement) {
             const btn = tableRowElement.querySelector('.save-row-button');
             setButtonLoading(btn, true, 'fas fa-check');
             try {
-                const response = await fetch('/api/save-row', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ week: currentWeek, data: rowData, section: selectedSection }) });
+                const response = await fetch('/api/save-row', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ week: currentWeek, data: rowData, section: selectedSection })
+                });
                 if (!response.ok) throw new Error((await response.json()).message || 'Erreur de sauvegarde de la ligne.');
                 const result = await response.json();
                 tableRowElement.classList.remove('modified');
@@ -347,16 +374,22 @@
                     const updCell = tableRowElement.querySelector('.updated-at-column');
                     if (updCell) updCell.textContent = formatUpdatedAt(result.updatedData.updatedAt);
                 }
-            } catch(e) { displayAlert('error_saving_row', true, { error: e.message }); } 
-            finally { setButtonLoading(btn, false, 'fas fa-check'); checkAndDisplayIncompleteTeachers(); }
+            } catch(e) {
+                displayAlert('error_saving_row', true, { error: e.message });
+            } finally {
+                setButtonLoading(btn, false, 'fas fa-check');
+                checkAndDisplayIncompleteTeachers();
+            }
         }
 
         async function saveAllDisplayedRows() {
             if (!filteredAndSortedData || filteredAndSortedData.length === 0) { displayAlert("no_rows_to_save", true); return; }
             if (!confirm(t('confirm_save_all', { count: filteredAndSortedData.length, week: currentWeek }))) return;
+
             setButtonLoading(document.getElementById('saveAllDisplayedBtn'), true, 'fas fa-save');
             showProgressBar();
-            let successCount = 0, errorCount = 0;
+            let successCount = 0;
+            let errorCount = 0;
             for (let i = 0; i < filteredAndSortedData.length; i++) {
                 const rowData = filteredAndSortedData[i];
                 updateProgressBar(Math.round(((i + 1) / filteredAndSortedData.length) * 100));
@@ -380,7 +413,7 @@
             const classKey = findHKey('Classe');
             filteredAndSortedData.forEach(item => { const className = item[classKey]; if (!dataByClass[className]) dataByClass[className] = []; dataByClass[className].push(item); });
             
-            let okCount = 0;
+            let okCount = 0, errCount = 0;
             for (const className in dataByClass) {
                 try {
                     const payload = { week: currentWeek, classe: className, data: dataByClass[className], notes: weeklyClassNotes[className] || '', section: selectedSection };
@@ -390,7 +423,10 @@
                     const filename = `Plan_${selectedSection}_S${currentWeek}_${className}.docx`;
                     saveAs(blob, filename);
                     okCount++;
-                } catch (e) { displayAlert('error', true, { error: e.message }); }
+                } catch (e) {
+                    errCount++;
+                    displayAlert('error', true, { error: e.message });
+                }
             }
             setButtonLoading(document.getElementById('generateWordBtn'), false, 'fas fa-file-word');
             if (okCount > 0) displayAlert('generating_word_success', false, { count: okCount });
@@ -406,8 +442,11 @@
                 const filename = `Plan_Complet_${selectedSection}_S${currentWeek}.xlsx`;
                 saveAs(blob, filename);
                 displayAlert('generating_excel_success', false, { filename });
-            } catch (e) { displayAlert('error_generating_excel', true, { error: e.message }); } 
-            finally { setButtonLoading(document.getElementById('generateExcelBtn'), false, 'fas fa-file-excel'); }
+            } catch (e) {
+                displayAlert('error_generating_excel', true, { error: e.message });
+            } finally {
+                setButtonLoading(document.getElementById('generateExcelBtn'), false, 'fas fa-file-excel');
+            }
         }
         
         async function generateFullReportByClass() {
@@ -422,8 +461,11 @@
                     saveAs(blob, filename);
                     displayAlert('generating_full_report_success', false, { classe: selectedClass });
                 } else { throw new Error((await response.json()).message); }
-            } catch (error) { displayAlert('generating_full_report_error', true, { classe: selectedClass, error: error.message }); } 
-            finally { setButtonLoading(document.getElementById('generateFullReportBtn'), false, 'fas fa-file-invoice'); }
+            } catch (error) {
+                displayAlert('generating_full_report_error', true, { classe: selectedClass, error: error.message });
+            } finally {
+                setButtonLoading(document.getElementById('generateFullReportBtn'), false, 'fas fa-file-invoice');
+            }
         }
 
         async function saveNotes() {
@@ -436,11 +478,13 @@
                 if (!response.ok) throw new Error((await response.json()).message || 'Erreur sauvegarde.');
                 weeklyClassNotes[selCls] = notesVal;
                 displayAlert('notes_saved_success', false, { class: selCls, week: currentWeek });
-            } catch (error) { displayAlert('error_saving_notes', true, { error: error.message }); } 
-            finally { setButtonLoading(document.getElementById('saveNotesBtn'), false, 'fas fa-save'); }
+            } catch (error) {
+                displayAlert('error_saving_notes', true, { error: error.message });
+            } finally {
+                setButtonLoading(document.getElementById('saveNotesBtn'), false, 'fas fa-save');
+            }
         }
-        
-        // --- Le reste des fonctions originales, incluses pour être complet ---
+
         function createTableHeader() {
             const tHead = document.querySelector('#planTable thead tr');
             tHead.innerHTML = '';
@@ -463,7 +507,7 @@
             const tBody = document.querySelector('#planTable tbody');
             const tHead = document.querySelector('#planTable thead tr');
             tBody.innerHTML = '';
-            const colspanVal = tHead ? tHead.querySelectorAll('th').length || 10 : 10;
+            const colspanVal = tHead ? tHead.querySelectorAll('th').length : 10;
             const curH = headers || [];
             const hDisp = curH.filter(h => h !== '_id' && h.toLowerCase() !== 'updatedat' && h !== 'id');
             const jK = findHKey('Jour'), clsK = findHKey('Classe'), updK = findHKey('updatedAt');
@@ -484,7 +528,7 @@
                     td.setAttribute('dir', 'auto');
                     if (header === jK && content) { const dt = getDateForDayName(content); td.textContent = dt ? formatDateForDisplay(dt) : content; }
                     else if (header === clsK && content) { const ar = classTranslations[content]; td.textContent = ar ? `${ar} (${content})` : content; }
-                    else if (editHdrKeys.includes(header) && !admins.has(loggedInUser)) {
+                    else if (editHdrKeys.includes(header)) {
                         td.contentEditable = true; td.classList.add('editable'); td.textContent = content; td.spellcheck = true;
                         td.addEventListener('input', (e) => { rowObj[header] = e.target.textContent; e.target.closest('tr').classList.add('modified'); });
                     } else { td.textContent = content; }
@@ -502,7 +546,7 @@
         
         function populateFilterOptions() {
             const data = planData || [];
-            const getUniq = (k) => [...new Set(data.map(i => i[k]).filter(Boolean))].sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true}));
+            const getUniq = (k) => [...new Set(data.map(i => i[k]).filter(Boolean))].sort((a,b) => String(a).localeCompare(String(b)));
             const ensK = findHKey('Enseignant'), clsK = findHKey('Classe'), perK = findHKey('Période'), matK = findHKey('Matière');
             const updateSel = (id, opts, isCls = false) => {
                 const sel = document.getElementById(id);
@@ -519,19 +563,35 @@
             if (loggedInUser && !admins.has(loggedInUser)) { filterEnsSelect.value = loggedInUser; filterEnsSelect.disabled = true; } else { filterEnsSelect.disabled = false; }
         }
 
-        function sortAndDisplay() { /* ... (Logique inchangée) ... */ }
+        function sortAndDisplay() {
+            if (!planData) return;
+            const ensF = document.getElementById('filterEnseignant').value;
+            const clsF = document.getElementById('filterClasse').value;
+            const matF = document.getElementById('filterMatiere').value;
+            const perF = document.getElementById('filterPeriode').value;
+            const jF = document.getElementById('filterJour').value;
+            const ensK = findHKey('Enseignant'), clsK = findHKey('Classe'), matK = findHKey('Matière'), perK = findHKey('Période'), jK = findHKey('Jour');
+            filteredAndSortedData = planData.filter(i => {
+                return (!ensF || i[ensK] === ensF) && (!clsF || i[clsK] === clsF) && (!matF || i[matK] === matF) && (!perF || String(i[perK]) === perF) && (!jF || i[jK] === jF);
+            });
+            const dayValuesFr = { "Dimanche": 1, "Lundi": 2, "Mardi": 3, "Mercredi": 4, "Jeudi": 5 };
+            filteredAndSortedData.sort((a, b) => {
+                const classComp = compareClasses(a[clsK], b[clsK]);
+                if (classComp !== 0) return classComp;
+                const dayComp = (dayValuesFr[a[jK]] || 99) - (dayValuesFr[b[jK]] || 99);
+                if (dayComp !== 0) return dayComp;
+                return (parseInt(a[perK], 10) || 0) - (parseInt(b[perK], 10) || 0);
+            });
+            displayPlanTable(filteredAndSortedData);
+            updateActionButtonsState(filteredAndSortedData.length > 0);
+        }
+
         function checkAndDisplayIncompleteTeachers() { /* ... (Logique inchangée) ... */ }
         function toggleIncompleteList() { /* ... (Logique inchangée) ... */ }
         function applyLanguageSettings() { /* ... (Logique inchangée) ... */ }
         function updateActionButtonsState(isEnabled) { document.getElementById('generateWordBtn').disabled = !isEnabled; document.getElementById('generateExcelBtn').disabled = !isEnabled; document.getElementById('saveAllDisplayedBtn').disabled = !isEnabled; }
 
-        // --- Initialisation ---
         document.addEventListener('DOMContentLoaded', () => {
-            // NOUVEAU: Gestion de l'écran de sélection
-            document.getElementById('btn-select-garcons').addEventListener('click', () => showLoginScreen('garcons'));
-            document.getElementById('btn-select-filles').addEventListener('click', () => showLoginScreen('filles'));
-            document.getElementById('back-to-section-choice').addEventListener('click', showSectionChoiceScreen);
-
             document.getElementById('login-button').addEventListener('click', handleLogin);
             document.getElementById('logout-button').addEventListener('click', handleLogout);
             document.getElementById('togglePassword').addEventListener('click', togglePasswordVisibility);
@@ -541,11 +601,9 @@
                 try {
                     const { user, section } = JSON.parse(remembered);
                     if (user && section) {
-                        // Simule la connexion pour restaurer la session
-                        selectedSection = section;
                         document.getElementById('username').value = user;
-                        // On pourrait appeler handleLogin() directement si on stockait le mdp, mais c'est non sécurisé.
-                        // L'utilisateur devra retaper son mot de passe.
+                        document.getElementById('sectionSelectorLogin').value = section;
+                        document.getElementById('rememberMe').checked = true;
                     }
                 } catch (e) { localStorage.removeItem('rememberedUser'); }
             }
@@ -553,5 +611,3 @@
     </script>
 </body>
 </html>
-
-
