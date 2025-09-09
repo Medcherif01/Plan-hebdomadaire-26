@@ -1,6 +1,7 @@
+// api/index.js
+
 const express = require('express');
 const cors = require('cors');
-const fileUpload = require('express-fileupload');
 const XLSX = require('xlsx');
 const PizZip = require('pizzip');
 const Docxtemplater = require('docxtemplater');
@@ -14,14 +15,24 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // --- CONFIGURATION ---
+
+// IMPORTANT POUR VERCEL :
+// Ces variables DOIVENT être configurées dans les "Environment Variables"
+// des paramètres de votre projet sur le site de Vercel.
 const MONGO_URL = process.env.MONGO_URL;
 const WORD_TEMPLATE_URL = process.env.WORD_TEMPLATE_URL;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
 let geminiModel;
 
-if (!MONGO_URL) console.error('FATAL: MONGO_URL n\'est pas définie.');
-if (process.env.GEMINI_API_KEY) {
+// Vérification au démarrage du serveur
+if (!MONGO_URL) {
+    console.error('ERREUR FATALE : La variable d\'environnement MONGO_URL n\'est pas définie.');
+    console.error('Veuillez l\'ajouter dans les paramètres de votre projet Vercel pour que l\'application puisse se connecter à la base de données.');
+}
+if (GEMINI_API_KEY) {
     try {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
         geminiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
         console.log('✅ SDK Google Gemini initialisé.');
     } catch (e) { console.error("Erreur initialisation Gemini:", e); }
@@ -41,13 +52,18 @@ const validUsers = {
     "Abeer": "Abeer", "Aichetou": "Aichetou", "Amal": "Amal", "Amal Arabic": "Amal Arabic", "Ange": "Ange", "Anouar": "Anouar", "Emen": "Emen", "Farah": "Farah", "Fatima Islamic": "Fatima Islamic", "Ghadah": "Ghadah", "Hana - Ameni - PE": "Hana - Ameni - PE", "Nada": "Nada", "Raghd ART": "Raghd ART", "Salma": "Salma", "Sara": "Sara", "Souha": "Souha", "Takwa": "Takwa", "Zohra Zidane": "Zohra Zidane"
 };
 
-// Connexion MongoDB
+// Connexion MongoDB (Pattern recommandé pour Vercel)
 let cachedDb = null;
 async function connectToDatabase() {
     if (cachedDb) return cachedDb;
+    
+    if (!MONGO_URL) {
+        throw new Error("La chaîne de connexion MONGO_URL n'est pas disponible. Impossible de se connecter à la base de données.");
+    }
+    
     const client = new MongoClient(MONGO_URL);
     await client.connect();
-    const db = client.db();
+    const db = client.db(); // Le nom de la DB est généralement inclus dans l'URL de connexion
     cachedDb = db;
     return db;
 }
@@ -57,7 +73,7 @@ function formatDateFrenchNode(date) { if (!date || isNaN(date.getTime())) return
 function getDateForDayNameNode(weekStartDate, dayName) { if (!weekStartDate || isNaN(weekStartDate.getTime())) return null; const dayOrder = { "Dimanche": 0, "Lundi": 1, "Mardi": 2, "Mercredi": 3, "Jeudi": 4 }; const offset = dayOrder[dayName]; if (offset === undefined) return null; const specificDate = new Date(Date.UTC(weekStartDate.getUTCFullYear(), weekStartDate.getUTCMonth(), weekStartDate.getUTCDate())); specificDate.setUTCDate(specificDate.getUTCDate() + offset); return specificDate; }
 const findKey = (obj, target) => obj ? Object.keys(obj).find(k => k.trim().toLowerCase() === target.toLowerCase()) : undefined;
 
-// --- ROUTES API (TOUTES MISES À JOUR POUR LA SECTION) ---
+// --- ROUTES API ---
 
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
@@ -79,40 +95,68 @@ app.get('/api/plans/:week', async (req, res) => {
             planData: planDocument?.data || [],
             classNotes: planDocument?.classNotes || {}
         });
-    } catch (error) { res.status(500).json({ message: 'Erreur serveur.' }); }
+    } catch (error) { 
+        console.error("Erreur API /api/plans/:week :", error.message);
+        res.status(500).json({ message: 'Erreur serveur lors de la récupération des données. Vérifiez la configuration de la base de données sur Vercel.' }); 
+    }
 });
 
 app.post('/api/save-plan', async (req, res) => {
     const { week, data, section } = req.body;
-    if (!week || !data || !section) return res.status(400).json({ message: 'Données manquantes.' });
+    if (!week || !data || !section) return res.status(400).json({ message: 'Données manquantes (semaine, data, section).' });
     try {
         const db = await connectToDatabase();
         await db.collection('plans').updateOne(
             { week: parseInt(week), section: section },
-            { $set: { data: data, section: section } },
+            { $set: { data: data, section: section, updatedAt: new Date() } },
             { upsert: true }
         );
-        res.status(200).json({ message: `Plan enregistré.` });
-    } catch (error) { res.status(500).json({ message: 'Erreur serveur.' }); }
+        res.status(200).json({ message: `Plan pour la semaine ${week} (${section}) enregistré avec succès.` });
+    } catch (error) { 
+        console.error("Erreur API /api/save-plan :", error);
+        res.status(500).json({ message: 'Erreur serveur lors de la sauvegarde du plan.' }); 
+    }
 });
 
 app.post('/api/save-row', async (req, res) => {
     const { week, data: rowData, section } = req.body;
-    if (!week || !rowData || !section) return res.status(400).json({ message: 'Données manquantes.' });
+    if (!week || !rowData || !section) return res.status(400).json({ message: 'Données de base manquantes.' });
     try {
         const db = await connectToDatabase();
         const updateFields = {};
         const now = new Date();
         for (const key in rowData) { updateFields[`data.$[elem].${key}`] = rowData[key]; }
         updateFields['data.$[elem].updatedAt'] = now;
-        const arrayFilters = [{ "elem.Enseignant": rowData[findKey(rowData, 'Enseignant')], "elem.Classe": rowData[findKey(rowData, 'Classe')], "elem.Jour": rowData[findKey(rowData, 'Jour')], "elem.Période": rowData[findKey(rowData, 'Période')], "elem.Matière": rowData[findKey(rowData, 'Matière')] }];
+
+        const enseignantKey = findKey(rowData, 'Enseignant');
+        const classeKey = findKey(rowData, 'Classe');
+        const jourKey = findKey(rowData, 'Jour');
+        const periodeKey = findKey(rowData, 'Période');
+        const matiereKey = findKey(rowData, 'Matière');
+        
+        if (!enseignantKey || !classeKey || !jourKey || !periodeKey || !matiereKey) {
+            return res.status(400).json({ message: 'Données de ligne incomplètes pour identification. Impossible de sauvegarder.' });
+        }
+
+        const arrayFilters = [{ 
+            "elem.Enseignant": rowData[enseignantKey], 
+            "elem.Classe": rowData[classeKey], 
+            "elem.Jour": rowData[jourKey], 
+            "elem.Période": rowData[periodeKey], 
+            "elem.Matière": rowData[matiereKey] 
+        }];
+        
         const result = await db.collection('plans').updateOne({ week: parseInt(week), section: section }, { $set: updateFields }, { arrayFilters: arrayFilters });
+        
         if (result.matchedCount > 0) {
             res.status(200).json({ message: 'Ligne enregistrée.', updatedData: { updatedAt: now } });
         } else {
-            res.status(404).json({ message: 'Ligne non trouvée.' });
+            res.status(404).json({ message: 'Ligne non trouvée. Impossible de mettre à jour. La donnée originale a peut-être changé.' });
         }
-    } catch (error) { res.status(500).json({ message: 'Erreur serveur.' }); }
+    } catch (error) { 
+        console.error("Erreur API /api/save-row :", error);
+        res.status(500).json({ message: 'Erreur serveur lors de la sauvegarde de la ligne.' }); 
+    }
 });
 
 app.post('/api/save-notes', async (req, res) => {
@@ -126,7 +170,10 @@ app.post('/api/save-notes', async (req, res) => {
             { upsert: true }
         );
         res.status(200).json({ message: 'Notes enregistrées.' });
-    } catch (error) { res.status(500).json({ message: 'Erreur serveur.' }); }
+    } catch (error) { 
+        console.error("Erreur API /api/save-notes :", error);
+        res.status(500).json({ message: 'Erreur serveur.' }); 
+    }
 });
 
 app.get('/api/all-classes', async (req, res) => {
@@ -136,7 +183,10 @@ app.get('/api/all-classes', async (req, res) => {
         const db = await connectToDatabase();
         const classes = await db.collection('plans').distinct('data.Classe', { section: section, 'data.Classe': { $ne: null, $ne: "" } });
         res.status(200).json(classes.sort());
-    } catch (error) { res.status(500).json({ message: 'Erreur serveur.' }); }
+    } catch (error) { 
+        console.error("Erreur API /api/all-classes :", error);
+        res.status(500).json({ message: 'Erreur serveur.' }); 
+    }
 });
 
 app.post('/api/generate-word', async (req, res) => {
@@ -215,6 +265,7 @@ app.post('/api/generate-excel-workbook', async (req, res) => {
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.send(buffer);
     } catch (error) {
+        console.error("Erreur API /api/generate-excel-workbook :", error);
         res.status(500).json({ message: 'Erreur interne Excel.' });
     }
 });
@@ -263,6 +314,7 @@ app.post('/api/full-report-by-class', async (req, res) => {
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.send(buffer);
     } catch (error) {
+        console.error("Erreur API /api/full-report-by-class :", error);
         res.status(500).json({ message: 'Erreur interne du rapport.' });
     }
 });
@@ -271,12 +323,8 @@ app.post('/api/generate-ai-lesson-plan', async (req, res) => {
     if (!geminiModel) {
         return res.status(503).json({ message: "Service IA non configuré sur le serveur." });
     }
-    // La logique de cette fonction n'a pas besoin de la `section` car elle se base
-    // sur les `rowData` envoyées par le client, qui sont déjà spécifiques à la section.
-    // ... La logique complète de votre fonction AI originale irait ici ...
     res.status(501).json({ message: "Fonctionnalité IA non implémentée dans cette version."});
 });
-
 
 // Exporter l'app pour Vercel
 module.exports = app;
