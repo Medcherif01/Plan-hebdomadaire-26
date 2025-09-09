@@ -41,7 +41,7 @@ const validUsers = {
     "Abeer": "Abeer", "Aichetou": "Aichetou", "Amal": "Amal", "Amal Arabic": "Amal Arabic", "Ange": "Ange", "Anouar": "Anouar", "Emen": "Emen", "Farah": "Farah", "Fatima Islamic": "Fatima Islamic", "Ghadah": "Ghadah", "Hana - Ameni - PE": "Hana - Ameni - PE", "Nada": "Nada", "Raghd ART": "Raghd ART", "Salma": "Salma", "Sara": "Sara", "Souha": "Souha", "Takwa": "Takwa", "Zohra Zidane": "Zohra Zidane"
 };
 
-// Connexion MongoDB (inchangée)
+// Connexion MongoDB
 let cachedDb = null;
 async function connectToDatabase() {
     if (cachedDb) return cachedDb;
@@ -52,7 +52,7 @@ async function connectToDatabase() {
     return db;
 }
 
-// Fonctions Utilitaires (inchangées)
+// Fonctions Utilitaires
 function formatDateFrenchNode(date) { if (!date || isNaN(date.getTime())) return "Date invalide"; const days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"]; const months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]; const dayName = days[date.getUTCDay()]; const dayNum = String(date.getUTCDate()).padStart(2, '0'); const monthName = months[date.getUTCMonth()]; const yearNum = date.getUTCFullYear(); return `${dayName} ${dayNum} ${monthName} ${yearNum}`; }
 function getDateForDayNameNode(weekStartDate, dayName) { if (!weekStartDate || isNaN(weekStartDate.getTime())) return null; const dayOrder = { "Dimanche": 0, "Lundi": 1, "Mardi": 2, "Mercredi": 3, "Jeudi": 4 }; const offset = dayOrder[dayName]; if (offset === undefined) return null; const specificDate = new Date(Date.UTC(weekStartDate.getUTCFullYear(), weekStartDate.getUTCMonth(), weekStartDate.getUTCDate())); specificDate.setUTCDate(specificDate.getUTCDate() + offset); return specificDate; }
 const findKey = (obj, target) => obj ? Object.keys(obj).find(k => k.trim().toLowerCase() === target.toLowerCase()) : undefined;
@@ -70,7 +70,7 @@ app.post('/api/login', (req, res) => {
 
 app.get('/api/plans/:week', async (req, res) => {
     const { week } = req.params;
-    const { section } = req.query; // NÉCESSAIRE
+    const { section } = req.query;
     if (!week || !section) return res.status(400).json({ message: 'Semaine ou section manquante.' });
     try {
         const db = await connectToDatabase();
@@ -83,13 +83,13 @@ app.get('/api/plans/:week', async (req, res) => {
 });
 
 app.post('/api/save-plan', async (req, res) => {
-    const { week, data, section } = req.body; // NÉCESSAIRE
+    const { week, data, section } = req.body;
     if (!week || !data || !section) return res.status(400).json({ message: 'Données manquantes.' });
     try {
         const db = await connectToDatabase();
         await db.collection('plans').updateOne(
             { week: parseInt(week), section: section },
-            { $set: { data: data, section: section } }, // On s'assure que la section est enregistrée
+            { $set: { data: data, section: section } },
             { upsert: true }
         );
         res.status(200).json({ message: `Plan enregistré.` });
@@ -97,7 +97,7 @@ app.post('/api/save-plan', async (req, res) => {
 });
 
 app.post('/api/save-row', async (req, res) => {
-    const { week, data: rowData, section } = req.body; // NÉCESSAIRE
+    const { week, data: rowData, section } = req.body;
     if (!week || !rowData || !section) return res.status(400).json({ message: 'Données manquantes.' });
     try {
         const db = await connectToDatabase();
@@ -105,15 +105,7 @@ app.post('/api/save-row', async (req, res) => {
         const now = new Date();
         for (const key in rowData) { updateFields[`data.$[elem].${key}`] = rowData[key]; }
         updateFields['data.$[elem].updatedAt'] = now;
-        // Filtre pour trouver la bonne ligne dans le tableau data
-        const arrayFilters = [{ 
-            "elem.Enseignant": rowData[findKey(rowData, 'Enseignant')], 
-            "elem.Classe": rowData[findKey(rowData, 'Classe')], 
-            "elem.Jour": rowData[findKey(rowData, 'Jour')], 
-            "elem.Période": rowData[findKey(rowData, 'Période')], 
-            "elem.Matière": rowData[findKey(rowData, 'Matière')] 
-        }];
-        // Filtre principal pour trouver le bon document (semaine ET section)
+        const arrayFilters = [{ "elem.Enseignant": rowData[findKey(rowData, 'Enseignant')], "elem.Classe": rowData[findKey(rowData, 'Classe')], "elem.Jour": rowData[findKey(rowData, 'Jour')], "elem.Période": rowData[findKey(rowData, 'Période')], "elem.Matière": rowData[findKey(rowData, 'Matière')] }];
         const result = await db.collection('plans').updateOne({ week: parseInt(week), section: section }, { $set: updateFields }, { arrayFilters: arrayFilters });
         if (result.matchedCount > 0) {
             res.status(200).json({ message: 'Ligne enregistrée.', updatedData: { updatedAt: now } });
@@ -124,7 +116,7 @@ app.post('/api/save-row', async (req, res) => {
 });
 
 app.post('/api/save-notes', async (req, res) => {
-    const { week, classe, notes, section } = req.body; // NÉCESSAIRE
+    const { week, classe, notes, section } = req.body;
     if (!week || !classe || !section) return res.status(400).json({ message: 'Données manquantes.' });
     try {
         const db = await connectToDatabase();
@@ -138,7 +130,7 @@ app.post('/api/save-notes', async (req, res) => {
 });
 
 app.get('/api/all-classes', async (req, res) => {
-    const { section } = req.query; // NÉCESSAIRE
+    const { section } = req.query;
     if (!section) return res.status(400).json({ message: 'Section manquante.' });
     try {
         const db = await connectToDatabase();
@@ -147,11 +139,9 @@ app.get('/api/all-classes', async (req, res) => {
     } catch (error) { res.status(500).json({ message: 'Erreur serveur.' }); }
 });
 
-// --- ROUTES DE GÉNÉRATION DE FICHIERS (TOUTES MISES À JOUR POUR LA SECTION) ---
-
 app.post('/api/generate-word', async (req, res) => {
     try {
-        const { week, classe, data, notes, section } = req.body; // NÉCESSAIRE
+        const { week, classe, data, notes, section } = req.body;
         if (!week || !classe || !data || !section) return res.status(400).json({ message: 'Données invalides pour la génération Word.' });
         
         let templateBuffer;
@@ -205,7 +195,7 @@ app.post('/api/generate-word', async (req, res) => {
 
 app.post('/api/generate-excel-workbook', async (req, res) => {
     try {
-        const { week, section } = req.body; // NÉCESSAIRE
+        const { week, section } = req.body;
         if (!week || !section) return res.status(400).json({ message: 'Données invalides.' });
         const db = await connectToDatabase();
         const planDocument = await db.collection('plans').findOne({ week: parseInt(week), section: section });
@@ -231,7 +221,7 @@ app.post('/api/generate-excel-workbook', async (req, res) => {
 
 app.post('/api/full-report-by-class', async (req, res) => {
     try {
-        const { classe: requestedClass, section } = req.body; // NÉCESSAIRE
+        const { classe: requestedClass, section } = req.body;
         if (!requestedClass || !section) return res.status(400).json({ message: 'Classe ou section requise.' });
         const db = await connectToDatabase();
         const allPlans = await db.collection('plans').find({ section: section }).sort({ week: 1 }).toArray();
@@ -277,13 +267,13 @@ app.post('/api/full-report-by-class', async (req, res) => {
     }
 });
 
-// La route pour l'IA est ici mais n'est pas entièrement fonctionnelle, elle nécessite un abonnement.
 app.post('/api/generate-ai-lesson-plan', async (req, res) => {
     if (!geminiModel) {
         return res.status(503).json({ message: "Service IA non configuré sur le serveur." });
     }
-    // ... La logique complète de votre fonction AI originale irait ici.
-    // Pour l'instant, on retourne une erreur polie.
+    // La logique de cette fonction n'a pas besoin de la `section` car elle se base
+    // sur les `rowData` envoyées par le client, qui sont déjà spécifiques à la section.
+    // ... La logique complète de votre fonction AI originale irait ici ...
     res.status(501).json({ message: "Fonctionnalité IA non implémentée dans cette version."});
 });
 
