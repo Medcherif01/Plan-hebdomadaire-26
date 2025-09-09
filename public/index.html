@@ -1,1207 +1,590 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plans Hebdomadaires - Al-Kawthar</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Plans Hebdomadaires</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <link rel="stylesheet" href="style.css"/>
 </head>
-<body dir="ltr">
+<body>
 
-    <!-- FORMULAIRE DE CONNEXION -->
-    <div id="login-form">
-        <img id="logo" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo Al-Kawthar">
-        <h1>Connexion</h1>
-        <div class="section-selector-container" style="width: 100%; margin-bottom: 15px;">
-            <label for="sectionSelectorLogin" style="display: block; margin-bottom: 5px; font-weight: 500;"><i class="fas fa-school"></i> Section :</label>
-            <select id="sectionSelectorLogin" style="width: 100%; padding: 10px; border: 1px solid #dee2e6; border-radius: 5px; box-sizing: border-box;">
-                <option value="garcons">Garçons</option>
-                <option value="filles">Filles</option>
-            </select>
-        </div>
-        <div>
-            <label for="username">Nom d'utilisateur (Enseignant) :</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div class="password-container">
-            <label for="password">Mot de passe (idem Nom) :</label>
-            <input type="password" id="password" name="password" required>
-            <i class="fas fa-eye password-toggle-icon" id="togglePassword"></i>
-        </div>
-        <div class="remember-me-container">
-            <input type="checkbox" id="rememberMe" name="rememberMe">
-            <label for="rememberMe" id="remember-me-label">Rester connecté</label>
-        </div>
-        <button id="login-button" class="pro-button"><i class="fas fa-sign-in-alt"></i> <span class="btn-text">Se connecter</span></button>
-        <p id="login-error"></p>
+  <!-- LOGIN -->
+  <div id="login-form">
+    <img id="logo" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo">
+    <h1>Connexion</h1>
+
+    <div class="section-selector-container">
+      <label for="sectionSelectorLogin"><i class="fas fa-school"></i> Section :</label>
+      <select id="sectionSelectorLogin">
+        <option value="garcons">Garçons</option>
+        <option value="filles">Filles</option>
+      </select>
     </div>
 
-    <!-- CONTENU PRINCIPAL -->
-    <div id="main-content" style="display: none;">
-        <div class="main-header-container">
-            <img id="logo-main" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo Al-Kawthar">
-            <div class="title-user-info">
-                 <h1 id="main-title">Plans Hebdomadaires</h1>
-                 <h2 id="weekDateRange"></h2>
-                 <div class="user-actions-container">
-                    <span id="loggedInUserInfo" style="font-style: italic;"></span>
-                    <button id="logout-button" class="pro-button danger-button">
-                        <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Déconnecter</span>
-                    </button>
-                 </div>
-            </div>
+    <div>
+      <label for="username">Nom d'utilisateur (Enseignant) :</label>
+      <input id="username" type="text" />
+    </div>
+
+    <div class="password-container">
+      <label for="password">Mot de passe (idem Nom) :</label>
+      <input id="password" type="password" />
+      <i class="fas fa-eye password-toggle-icon" id="togglePassword"></i>
+    </div>
+
+    <div class="remember-me-container">
+      <input id="rememberMe" type="checkbox" />
+      <label for="rememberMe">Rester connecté</label>
+    </div>
+
+    <button id="login-button" class="pro-button"><i class="fas fa-sign-in-alt"></i> Se connecter</button>
+    <p id="login-error"></p>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main-content" style="display:none;">
+    <div class="main-header-container">
+      <img id="logo-main" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo">
+      <div class="title-user-info">
+        <h1 id="main-title">Plans Hebdomadaires</h1>
+        <h2 id="weekDateRange"></h2>
+        <div class="user-actions-container">
+          <span id="loggedInUserInfo" style="font-style:italic;"></span>
+          <button id="logout-button" class="pro-button danger-button"><i class="fas fa-sign-out-alt"></i> Déconnecter</button>
         </div>
-        
-        <button id="toggleIncompleteBtn" onclick="toggleIncompleteList()" class="pro-button toggle-incomplete-btn">
-            <i class="fas fa-list-check"></i> <span class="btn-text">Afficher Incomplets</span>
+      </div>
+    </div>
+
+    <div class="filter-container week-selector-container">
+      <label for="weekSelector"><i class="fas fa-calendar-week"></i> Semaine :</label>
+      <select id="weekSelector"></select>
+    </div>
+
+    <div id="admin-actions" class="filter-container admin-section" style="display:none;">
+      <h3>Actions Administrateur</h3>
+      <div>
+        <label for="excelFileInput"><i class="fas fa-file-excel"></i> Fichier Excel :</label>
+        <input id="excelFileInput" type="file" accept=".xlsx,.xls" />
+      </div>
+      <button id="saveUploadedDataBtn" class="pro-button accent-button" disabled>
+        <i class="fas fa-database"></i> Charger et Enregistrer dans la DB
+      </button>
+      <span id="file-upload-status" style="font-size:.9em;"></span>
+
+      <div class="admin-subsection">
+        <label for="adminReportClassSelector"><i class="fas fa-school"></i> Choisir une Classe :</label>
+        <select id="adminReportClassSelector"><option value="">-- D'abord charger les classes --</option></select>
+        <button id="generateFullReportBtn" class="pro-button success-button">
+          <i class="fas fa-file-invoice"></i> Générer Rapport Complet par Classe
         </button>
-        
-        <div id="incompleteTeachersDisplay" style="display: none;">
-            <h4>Enseignants Incomplets (Travaux)</h4>
-            <ul id="incompleteList"><li>Chargement...</li></ul>
-        </div>
-        
-        <div class="filter-container week-selector-container">
-            <label for="weekSelector"><i class="fas fa-calendar-week"></i> Semaine:</label>
-            <select id="weekSelector" onchange="loadPlanForWeek()">
-                 <option value="">-- Sélectionnez une semaine --</option>
-                 <option value="1">Semaine 1</option><option value="2">Semaine 2</option><option value="3">Semaine 3</option><option value="4">Semaine 4</option><option value="5">Semaine 5</option><option value="6">Semaine 6</option><option value="7">Semaine 7</option><option value="8">Semaine 8</option><option value="9">Semaine 9</option><option value="10">Semaine 10</option><option value="11">Semaine 11</option><option value="12">Semaine 12</option><option value="13">Semaine 13</option><option value="14">Semaine 14</option><option value="15">Semaine 15</option><option value="16">Semaine 16</option><option value="17">Semaine 17</option><option value="18">Semaine 18</option><option value="19">Semaine 19</option><option value="20">Semaine 20</option><option value="21">Semaine 21</option><option value="22">Semaine 22</option><option value="23">Semaine 23</option><option value="24">Semaine 24</option><option value="25">Semaine 25</option><option value="26">Semaine 26</option><option value="27">Semaine 27</option><option value="28">Semaine 28</option><option value="29">Semaine 29</option><option value="30">Semaine 30</option><option value="31">Semaine 31</option><option value="32">Semaine 32</option><option value="33">Semaine 33</option><option value="34">Semaine 34</option><option value="35">Semaine 35</option><option value="36">Semaine 36</option><option value="37">Semaine 37</option><option value="38">Semaine 38</option><option value="39">Semaine 39</option><option value="40">Semaine 40</option><option value="41">Semaine 41</option><option value="42">Semaine 42</option><option value="43">Semaine 43</option><option value="44">Semaine 44</option><option value="45">Semaine 45</option><option value="46">Semaine 46</option><option value="47">Semaine 47</option><option value="48">Semaine 48</option>
-            </select>
-        </div>
-        
-        <div id="admin-actions" class="filter-container admin-section" style="display: none;">
-             <h3 id="admin-title">Actions Administrateur</h3>
-             <div>
-                <label for="excelFileInput" id="admin-excel-label"><i class="fas fa-file-excel"></i> Fichier Excel :</label>
-                <input type="file" id="excelFileInput" accept=".xlsx, .xls" onchange="handleFileUpload(event)">
-             </div>
-             <button id="saveUploadedDataBtn" onclick="saveUploadedData()" disabled class="pro-button accent-button">
-                <i class="fas fa-database"></i> <span class="btn-text">Charger et Enregistrer dans la DB</span>
-             </button>
-             <span id="file-upload-status" style="font-size: 0.9em;"></span>
-             <div class="admin-subsection">
-                <label for="adminReportClassSelector" id="admin-report-class-label"><i class="fas fa-school"></i> Choisir une Classe :</label>
-                <select id="adminReportClassSelector"><option value="">-- D'abord charger les classes --</option></select>
-                <button id="generateFullReportBtn" onclick="generateFullReportByClass()" class="pro-button success-button">
-                    <i class="fas fa-file-invoice"></i> <span class="btn-text">Générer Rapport Complet par Classe</span>
-                </button>
-             </div>
-             <div style="width: 100%; margin-top: 10px; font-size: 0.85em; color: var(--muted-text); border-top: 1px dashed var(--border-color); padding-top: 10px;">
-                 <i class="fas fa-info-circle"></i> **Note:** La fonction d'upload et d'extraction automatique depuis des fichiers Word ou PDF n'est pas implémentée.
-             </div>
-        </div>
-        
-        <div class="filter-container main-actions-container">
-            <button id="generateWordBtn" onclick="generateWordByClasse()" class="action-button pro-button" disabled>
-                <i class="fas fa-file-word"></i> <span class="btn-text">Générer Word par Classe</span>
-            </button>
-            <button id="generateExcelBtn" onclick="generateExcelWorkbook()" class="action-button pro-button" disabled>
-                <i class="fas fa-file-excel"></i> <span class="btn-text">Générer Excel (1 Fichier)</span>
-            </button>
-            <button id="saveAllDisplayedBtn" onclick="saveAllDisplayedRows()" class="action-button save-all-button pro-button" disabled>
-                <i class="fas fa-save"></i> <span class="btn-text">Enregistrer Lignes Affichées</span>
-            </button>
-            <a id="downloadLink" style="display:none;"></a>
-        </div>
-        
-        <div class="filter-container data-filters-container">
-             <label for="filterEnseignant" id="filter-enseignant-label"><i class="fas fa-user-tie"></i> Enseignant:</label>
-             <select id="filterEnseignant" onchange="sortAndDisplay()"> <option value="">Tous</option> </select>
-             <label for="filterClasse" id="filter-classe-label"><i class="fas fa-chalkboard-user"></i> Classe:</label>
-             <select id="filterClasse" onchange="sortAndDisplay()"> <option value="">Toutes</option> </select>
-             <label for="filterMatiere" id="filter-matiere-label"><i class="fas fa-book"></i> Matière:</label>
-             <select id="filterMatiere" onchange="sortAndDisplay()"> <option value="">Toutes</option> </select>
-             <label for="filterPeriode" id="filter-periode-label"><i class="fas fa-clock"></i> Période:</label>
-             <select id="filterPeriode" onchange="sortAndDisplay()"> <option value="">Toutes</option> </select>
-             <label for="filterJour" id="filter-jour-label"><i class="fas fa-calendar-day"></i> Jour:</label>
-             <select id="filterJour" onchange="sortAndDisplay()">
-                 <option value="">Tous</option><option value="Dimanche">Dimanche</option><option value="Lundi">Lundi</option><option value="Mardi">Mardi</option><option value="Mercredi">Mercredi</option><option value="Jeudi">Jeudi</option>
-            </select>
-        </div>
-        
-        <div id="message-alerte" style="display: none;"></div>
-        <div id="progress-bar-container" style="display: none;"><div id="progress-bar">0%</div></div>
-        
-        <div class="notes-container">
-            <label for="notesClassSelector" id="notes-class-label" style="font-weight: bold;">
-                <i class="fas fa-sticky-note"></i> Notes pour la classe :
-            </label>
-            <select id="notesClassSelector" onchange="displayClassNotes()">
-                <option value="">-- Sélectionnez une classe --</option>
-            </select>
-            <textarea id="notesInput" rows="4" placeholder="Sélectionnez une classe pour voir ou ajouter des notes..." spellcheck="true" disabled dir="auto"></textarea>
-            <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                <button id="saveNotesBtn" onclick="saveNotes()" class="action-button pro-button success-button" disabled>
-                    <i class="fas fa-save"></i> <span class="btn-text">Enregistrer Notes</span>
-                </button>
-                <span id="notes-save-status" style="font-size: 0.9em;"></span>
-            </div>
-        </div>
-        
-        <div class="table-responsive-wrapper">
-            <table id="planTable">
-                <thead> <tr></tr> </thead>
-                <tbody>
-                    <tr id="initial-table-row">
-                        <td colspan="10" style="text-align:center; padding: 20px; color: grey;" id="initial-table-message">
-                            Veuillez sélectionner une semaine pour afficher les données.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+      </div>
     </div>
 
-    <script>
-        // --- Variables Globales ---
-        let loggedInUser = null;
-        let selectedSection = null;
-        let currentUserLanguage = 'fr';
-        let planData = [];
-        let filteredAndSortedData = [];
-        let uploadedPlanData = null;
-        let headers = [];
-        let currentWeek = null;
-        let weekStartDate = null;
-        let weeklyClassNotes = {};
-        let alertTimeoutId = null;
-        let incompleteTeachersInfo = {};
+    <div class="filter-container main-actions-container">
+      <button id="generateWordBtn" class="pro-button" disabled><i class="fas fa-file-word"></i> Générer Word par Classe</button>
+      <button id="generateExcelBtn" class="pro-button" disabled><i class="fas fa-file-excel"></i> Générer Excel (1 Fichier)</button>
+      <button id="saveAllDisplayedBtn" class="pro-button" disabled><i class="fas fa-save"></i> Enregistrer Lignes Affichées</button>
+    </div>
 
-        // --- Configuration des Utilisateurs ---
-        const admins = new Set(['Mohamed', 'Zohra']);
-        const garconsTeachers = new Set(['Abas', 'Jaber', 'Kamel', 'Majed', 'Mohamed Ali', 'Morched', 'Saeed', 'Sami', 'Sylvano', 'Tonga', 'Youssef', 'Zine']);
-        const fillesTeachers = new Set(['Abeer', 'Aichetou', 'Amal', 'Amal Arabic', 'Ange', 'Anouar', 'Emen', 'Farah', 'Fatima Islamic', 'Ghadah', 'Hana - Ameni - PE', 'Nada', 'Raghd ART', 'Salma', 'Sara', 'Souha', 'Takwa', 'Zohra Zidane']);
-        
-        // --- Configuration des Langues et Colonnes ---
-        const arabicTeachersGarcons = new Set(['Jaber', 'Saeed', 'Majed']);
-        const englishTeacherGarcons = 'Kamel';
-        const teachersToHideGarcons = new Set(['Jaber', 'Saeed', 'Majed']);
-        
-        const arabicTeachersFilles = new Set(['Amal Arabic', 'Ghadah', 'Nada']);
-        const englishTeacherFilles = 'Ange';
-        const teachersToHideFilles = new Set(['Amal Arabic', 'Ghadah', 'Nada']);
+    <div id="message-alerte" style="display:none;"></div>
+    <div id="progress-bar-container" style="display:none;"><div id="progress-bar">0%</div></div>
 
-        const isArabicUser = () => {
-            if (selectedSection === 'garcons') return arabicTeachersGarcons.has(loggedInUser);
-            if (selectedSection === 'filles') return arabicTeachersFilles.has(loggedInUser);
-            return false;
-        };
-        
-        const isEnglishUser = () => {
-            if (selectedSection === 'garcons') return englishTeacherGarcons === loggedInUser;
-            if (selectedSection === 'filles') return englishTeacherFilles === loggedInUser;
-            return false;
-        };
-        
-        const shouldHideColumns = () => {
-            if (selectedSection === 'garcons') return teachersToHideGarcons.has(loggedInUser);
-            if (selectedSection === 'filles') return teachersToHideFilles.has(loggedInUser);
-            return false;
-        };
+    <div class="notes-container">
+      <label for="notesClassSelector" style="font-weight:bold;"><i class="fas fa-sticky-note"></i> Notes pour la classe :</label>
+      <select id="notesClassSelector"><option value="">-- Sélectionnez une classe --</option></select>
+      <textarea id="notesInput" rows="4" placeholder="Sélectionnez une classe..." disabled></textarea>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">
+        <button id="saveNotesBtn" class="pro-button success-button" disabled><i class="fas fa-save"></i> Enregistrer Notes</button>
+        <span id="notes-save-status" style="font-size:.9em;"></span>
+      </div>
+    </div>
 
-        const translations = {
-            fr: { 
-                login_title: "Connexion", 
-                login_username_label: "Nom d'utilisateur (Enseignant) :", 
-                login_password_label: "Mot de passe (idem Nom) :", 
-                login_button_text: "Se connecter", 
-                remember_me: "Rester connecté", 
-                logout_button: "Déconnecter", 
-                main_page_title: "Plans Hebdomadaires", 
-                week_label: "Semaine:", 
-                select_week: "-- Sélectionnez une semaine --", 
-                please_select_week: "Veuillez sélectionner une semaine.", 
-                admin_actions_title: "Actions Administrateur", 
-                admin_excel_label: "Fichier Excel :", 
-                admin_save_button: "Charger et Enregistrer dans la DB", 
-                generate_word_button: "Générer Word par Classe", 
-                generate_excel_button: "Générer Excel (1 Fichier)", 
-                save_all_button: "Enregistrer Lignes Affichées", 
-                filter_teacher_label: "Enseignant:", 
-                filter_class_label: "Classe:", 
-                filter_material_label: "Matière:", 
-                filter_period_label: "Période:", 
-                filter_day_label: "Jour:", 
-                all: "Tous", 
-                all_f: "Toutes", 
-                day_sun: "Dimanche", 
-                day_mon: "Lundi", 
-                day_tue: "Mardi", 
-                day_wed: "Mercredi", 
-                day_thu: "Jeudi", 
-                days: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"], 
-                fullDays: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"], 
-                months: ["Janv", "Fév", "Mars", "Avr", "Mai", "Juin", "Juil", "Août", "Sept", "Oct", "Nov", "Déc"], 
-                headers: { 
-                    'Leçon': 'Leçon', 
-                    'Travaux de classe': 'Travaux de classe', 
-                    'Support': 'Support', 
-                    'Devoirs': 'Devoirs', 
-                    'Enseignant': 'Enseignant', 
-                    'Classe': 'Classe', 
-                    'Matière': 'Matière', 
-                    'Période': 'Période', 
-                    'Jour': 'Jour' 
-                }, 
-                actions: "Actions", 
-                updated_at: "Mis à jour", 
-                notes_for_class: "Notes pour la classe :", 
-                select_class: "-- Sélectionnez une classe --", 
-                select_class_placeholder: "Sélectionnez une classe pour voir ou ajouter des notes...", 
-                notes_placeholder: "Notes pour {classText}...", 
-                save_notes_button: "Enregistrer Notes", 
-                saving: "Enregistrement...", 
-                saved: "Enregistré", 
-                saving_notes_for: "Enregistrement notes pour {class} S{week}", 
-                notes_saved_success: "Notes enregistrées pour {class}, S{week}.", 
-                error_saving_notes: "Erreur d'enregistrement des notes: {error}", 
-                display_incomplete: "Afficher Incomplets", 
-                hide_incomplete: "Masquer Incomplets", 
-                incomplete_teachers_title: "Enseignants Incomplets (Travaux)", 
-                loading: "Chargement...", 
-                no_data: "Aucune donnée.", 
-                all_complete: "Tout complet!", 
-                error_config_columns: "Erreur config colonnes.", 
-                welcome_user: "Bienvenue {user} ! Veuillez sélectionner une semaine.", 
-                connected_as: "Connecté: {user}", 
-                loading_data_week: "Chargement données S{week}...", 
-                data_loaded_week: "Données S{week} chargées.", 
-                no_data_found_week: "Aucune donnée trouvée pour S{week}.", 
-                error_loading_week: "Erreur chargement S{week}: {error}", 
-                select_week_to_display: "Veuillez sélectionner une semaine pour afficher les données.", 
-                error_structure: "Erreur: Structure de données non définie.", 
-                no_data_to_display_filters: "Aucune donnée à afficher avec les filtres actuels.", 
-                save_row_title: "Enregistrer cette ligne", 
-                invalid_row: "Ligne invalide.", 
-                error_saving_row: "Erreur enregistrement ligne: {error}", 
-                no_rows_to_save: "Aucune ligne affichée à enregistrer.", 
-                confirm_save_all: "Confirmer l'enregistrement des {count} lignes affichées pour la S{week}?", 
-                save_all_cancelled: "Enregistrement annulé.", 
-                saving_all_displayed: "Enregistrement des {count} lignes en cours...", 
-                save_all_success: "{count} lignes enregistrées avec succès.", 
-                save_all_partial: "Enregistrement terminé: {success} succès, {error} erreurs.", 
-                generating_word: "Génération de {count} document(s) Word...", 
-                generating_word_success: "{count} document(s) Word généré(s).", 
-                generating_word_partial: "Génération Word terminée: {ok} succès, {err} erreurs.", 
-                generating_word_failed: "Échec de la génération Word ({err} erreurs).", 
-                generating_excel: "Génération du fichier Excel S{week}...", 
-                generating_excel_success: "Fichier Excel '{filename}' généré.", 
-                error_generating_excel: "Erreur génération Excel: {error}", 
-                no_file_selected: "Aucun fichier sélectionné.", 
-                reading_file: "Lecture du fichier {fileName}...", 
-                file_read_success: "Fichier {fileName} lu ({count} lignes).", 
-                file_error: "Erreur lecture fichier: {error}", 
-                invalid_file_type: "Type de fichier invalide (.xlsx ou .xls requis).", 
-                saving_uploaded_data: "Enregistrement des données chargées pour S{week}...", 
-                uploaded_data_saved: "Données chargées enregistrées pour S{week}.", 
-                uploaded_data_error: "Erreur enregistrement données chargées: {error}", 
-                no_word_dates: "Génération Word: Dates manquantes côté serveur pour la semaine S{week}.",
-                admin_report_class_label: "Choisir une Classe :", 
-                generate_full_report_button: "Générer Rapport Complet par Classe", 
-                loading_classes: "-- Chargement des classes --", 
-                select_report_class: "-- Sélectionnez une classe pour le rapport --", 
-                no_classes_found: "-- Aucune classe trouvée --", 
-                generating_full_report: "Génération du rapport complet pour la classe {classe}...", 
-                generating_full_report_success: "Rapport complet pour {classe} généré.", 
-                generating_full_report_error: "Erreur génération du rapport pour {classe}: {error}", 
-                please_select_class_for_report: "Veuillez sélectionner une classe pour générer le rapport."
-            },
-            ar: {}, 
-            en: {}
-        };
-        
-        const t = (key, params = {}) => { 
-            let text = translations[currentUserLanguage]?.[key] || translations.fr[key] || key; 
-            for (const p in params) { 
-                text = text.replace(`{${p}}`, params[p]); 
-            } 
-            return text; 
-        };
-        
-        const classOrder = ["PEI1", "PEI2", "PEI3", "PEI4", "PEI5", "DP1", "DP2"];
-        const classTranslations = { 
-            'PEI1':'السادس', 
-            'PEI2':'الاول متوسط', 
-            'PEI3':'الثاني متوسط', 
-            'PEI4':'الثالث متوسط', 
-            'PEI5':'الأول ثانوي', 
-            'DP1':'الثاني ثانوي', 
-            'DP2':'الثالث ثانوي' 
-        };
-        
-        const specificWeekDateRanges = { 
-            1:{start:'2025-08-31',end:'2025-09-04'}, 2:{start:'2025-09-07',end:'2025-09-11'}, 3:{start:'2025-09-14',end:'2025-09-18'}, 4:{start:'2025-09-21',end:'2025-09-25'}, 5:{start:'2025-09-28',end:'2025-10-02'}, 6:{start:'2025-10-05',end:'2025-10-09'}, 7:{start:'2025-10-12',end:'2025-10-16'}, 8:{start:'2025-10-19',end:'2025-10-23'}, 9:{start:'2025-10-26',end:'2025-10-30'}, 10:{start:'2025-11-02',end:'2025-11-06'}, 11:{start:'2025-11-09',end:'2025-11-13'}, 12:{start:'2025-11-16',end:'2025-11-20'}, 13:{start:'2025-11-23',end:'2025-11-27'}, 14:{start:'2025-11-30',end:'2025-12-04'}, 15:{start:'2025-12-07',end:'2025-12-11'}, 16:{start:'2025-12-14',end:'2025-12-18'}, 17:{start:'2025-12-21',end:'2025-12-25'}, 18:{start:'2025-12-28',end:'2026-01-01'}, 19:{start:'2026-01-04',end:'2026-01-08'}, 20:{start:'2026-01-11',end:'2026-01-15'}, 21:{start:'2026-01-18',end:'2026-01-22'}, 22:{start:'2026-01-25',end:'2026-01-29'}, 23:{start:'2026-02-01',end:'2026-02-05'}, 24:{start:'2026-02-08',end:'2026-02-12'}, 25:{start:'2026-02-15',end:'2026-02-19'}, 26:{start:'2026-02-22',end:'2026-02-26'}, 27:{start:'2026-03-01',end:'2026-03-05'}, 28:{start:'2026-03-08',end:'2026-03-12'}, 29:{start:'2026-03-15',end:'2026-03-19'}, 30:{start:'2026-03-22',end:'2026-03-26'}, 31:{start:'2026-03-29',end:'2026-04-02'}, 32:{start:'2026-04-05',end:'2026-04-09'}, 33:{start:'2026-04-12',end:'2026-04-16'}, 34:{start:'2026-04-19',end:'2026-04-23'}, 35:{start:'2026-04-26',end:'2026-04-30'}, 36:{start:'2026-05-03',end:'2026-05-07'}, 37:{start:'2026-05-10',end:'2026-05-14'}, 38:{start:'2026-05-17',end:'2026-05-21'}, 39:{start:'2026-05-24',end:'2026-05-28'}, 40:{start:'2026-05-31',end:'2026-06-04'}, 41:{start:'2026-06-07',end:'2026-06-11'}, 42:{start:'2026-06-14',end:'2026-06-18'}, 43:{start:'2026-06-21',end:'2026-06-25'}, 44:{start:'2026-06-28',end:'2026-07-02'}, 45:{start:'2026-07-05',end:'2026-07-09'}, 46:{start:'2026-07-12',end:'2026-07-16'}, 47:{start:'2026-07-19',end:'2026-07-23'}, 48:{start:'2026-07-26',end:'2026-07-30'} 
-        };
+    <div class="table-responsive-wrapper">
+      <table id="planTable">
+        <thead><tr></tr></thead>
+        <tbody><tr id="initial-table-row"><td id="initial-table-message" colspan="10" style="text-align:center;padding:20px;color:#777">Veuillez sélectionner une semaine pour afficher les données.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
 
-        // --- Fonctions Utilitaires ---
-        function compareClasses(a, b) { 
-            const indexA = classOrder.indexOf(a); 
-            const indexB = classOrder.indexOf(b); 
-            if (indexA !== -1 && indexB !== -1) return indexA - indexB; 
-            return String(a).localeCompare(String(b)); 
-        }
-        
-        function showProgressBar() { 
-            document.getElementById('progress-bar-container').style.display = 'block'; 
-            document.getElementById('progress-bar').style.width = '0%'; 
-            document.getElementById('progress-bar').textContent = '0%'; 
-        }
-        
-        function updateProgressBar(p) { 
-            const clampedP = Math.min(100, Math.max(0, p)); 
-            document.getElementById('progress-bar').style.width = clampedP + '%'; 
-            document.getElementById('progress-bar').textContent = clampedP + '%'; 
-        }
-        
-        function hideProgressBar() { 
-            setTimeout(() => { 
-                document.getElementById('progress-bar-container').style.display = 'none'; 
-            }, 500); 
-        }
-        
-        function displayAlert(msgKey, isErr = false, params = {}) { 
-            const msg = t(msgKey, params); 
-            const div = document.getElementById('message-alerte'); 
-            div.textContent = msg; 
-            div.className = isErr ? 'alert-error' : (msgKey.includes('warn') || msgKey.includes('partial') ? 'alert-warning' : 'alert-success'); 
-            div.classList.add('message-alert-base'); 
-            div.style.display = 'block'; 
-            clearTimeout(alertTimeoutId); 
-            alertTimeoutId = setTimeout(() => { 
-                if (div.textContent === msg) { 
-                    div.style.display = 'none'; 
-                } 
-            }, isErr ? 8000 : 5000); 
-        }
-        
-        function setButtonLoading(btn, isLoading, iconClass) { 
-            if (!btn) return; 
-            btn.disabled = isLoading; 
-            const icon = btn.querySelector('i'); 
-            if (icon) icon.className = isLoading ? 'fas fa-spinner fa-spin' : iconClass; 
-        }
-        
-        function formatDateForDisplay(d) { 
-            if (!d || isNaN(d.getTime())) return "Invalid Date"; 
-            const days = t('fullDays'); 
-            const months = t('months'); 
-            return `${days[d.getUTCDay()]} ${String(d.getUTCDate()).padStart(2, '0')} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`; 
-        }
-        
-        const findHKey = (targetHeader) => { 
-            if (!headers || headers.length === 0 || !targetHeader) return null; 
-            const targetLower = targetHeader.trim().toLowerCase(); 
-            return headers.find(h => h?.trim().toLowerCase() === targetLower); 
-        };
-        
-        function getDateForDayName(dayNameFrench) { 
-            if (!weekStartDate || isNaN(weekStartDate.getTime())) return null; 
-            const dayMapFr = { "Dimanche": 0, "Lundi": 1, "Mardi": 2, "Mercredi": 3, "Jeudi": 4 }; 
-            const offset = dayMapFr[dayNameFrench]; 
-            if (offset === undefined) return null; 
-            const dt = new Date(Date.UTC(weekStartDate.getUTCFullYear(), weekStartDate.getUTCMonth(), weekStartDate.getUTCDate())); 
-            dt.setUTCDate(dt.getUTCDate() + offset); 
-            return dt; 
-        }
-        
-        function formatUpdatedAt(dS) { 
-            if (!dS) return ''; 
-            try { 
-                const d = new Date(dS); 
-                if (isNaN(d.getTime())) return ''; 
-                return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; 
-            } catch (e) { 
-                return ''; 
-            } 
+  <script>
+    // —————————— GLOBALS ——————————
+    let loggedInUser = null;
+    let selectedSection = null;
+    let planData = [];
+    let filteredData = [];
+    let headers = [];
+    let currentWeek = null;
+    let weeklyClassNotes = {};
+    let uploadedPlanData = null;
+
+    const admins = new Set(['Mohamed','Zohra']);
+
+    const weeks = Array.from({length:48}, (_,i)=>i+1);
+    const specificWeekDateRanges = {
+      1:{start:'2025-08-31',end:'2025-09-04'},2:{start:'2025-09-07',end:'2025-09-11'},3:{start:'2025-09-14',end:'2025-09-18'},
+      4:{start:'2025-09-21',end:'2025-09-25'},5:{start:'2025-09-28',end:'2025-10-02'},6:{start:'2025-10-05',end:'2025-10-09'},
+      7:{start:'2025-10-12',end:'2025-10-16'},8:{start:'2025-10-19',end:'2025-10-23'},9:{start:'2025-10-26',end:'2025-10-30'},
+      10:{start:'2025-11-02',end:'2025-11-06'},11:{start:'2025-11-09',end:'2025-11-13'},12:{start:'2025-11-16',end:'2025-11-20'},
+      13:{start:'2025-11-23',end:'2025-11-27'},14:{start:'2025-11-30',end:'2025-12-04'},15:{start:'2025-12-07',end:'2025-12-11'},
+      16:{start:'2025-12-14',end:'2025-12-18'},17:{start:'2025-12-21',end:'2025-12-25'},18:{start:'2025-12-28',end:'2026-01-01'},
+      19:{start:'2026-01-04',end:'2026-01-08'},20:{start:'2026-01-11',end:'2026-01-15'},21:{start:'2026-01-18',end:'2026-01-22'},
+      22:{start:'2026-01-25',end:'2026-01-29'},23:{start:'2026-02-01',end:'2026-02-05'},24:{start:'2026-02-08',end:'2026-02-12'},
+      25:{start:'2026-02-15',end:'2026-02-19'},26:{start:'2026-02-22',end:'2026-02-26'},27:{start:'2026-03-01',end:'2026-03-05'},
+      28:{start:'2026-03-08',end:'2026-03-12'},29:{start:'2026-03-15',end:'2026-03-19'},30:{start:'2026-03-22',end:'2026-03-26'},
+      31:{start:'2026-03-29',end:'2026-04-02'},32:{start:'2026-04-05',end:'2026-04-09'},33:{start:'2026-04-12',end:'2026-04-16'},
+      34:{start:'2026-04-19',end:'2026-04-23'},35:{start:'2026-04-26',end:'2026-04-30'},36:{start:'2026-05-03',end:'2026-05-07'},
+      37:{start:'2026-05-10',end:'2026-05-14'},38:{start:'2026-05-17',end:'2026-05-21'},39:{start:'2026-05-24',end:'2026-05-28'},
+      40:{start:'2026-05-31',end:'2026-06-04'},41:{start:'2026-06-07',end:'2026-06-11'},42:{start:'2026-06-14',end:'2026-06-18'},
+      43:{start:'2026-06-21',end:'2026-06-25'},44:{start:'2026-06-28',end:'2026-07-02'},45:{start:'2026-07-05',end:'2026-07-09'},
+      46:{start:'2026-07-12',end:'2026-07-16'},47:{start:'2026-07-19',end:'2026-07-23'},48:{start:'2026-07-26',end:'2026-07-30'}
+    };
+
+    const classOrder = ['PEI1','PEI2','PEI3','PEI4','PEI5','DP1','DP2'];
+    const findH = (target) => headers.find(h => h.trim().toLowerCase() === String(target).toLowerCase());
+
+    // —————————— UI HELPERS ——————————
+    function setBtnLoading(btn, loading, icon) {
+      if (!btn) return;
+      btn.disabled = loading;
+      const i = btn.querySelector('i');
+      if (i) i.className = loading ? 'fas fa-spinner fa-spin' : icon;
+    }
+    function alertMsg(text, type='success') {
+      const div = document.getElementById('message-alerte');
+      div.className = `message-alert-base alert-${type}`;
+      div.textContent = text;
+      div.style.display = 'block';
+      setTimeout(()=>{ div.style.display='none'; }, type==='error'?8000:5000);
+    }
+    function compareClasses(a,b){
+      const ia = classOrder.indexOf(a), ib = classOrder.indexOf(b);
+      if (ia!==-1 && ib!==-1) return ia-ib;
+      return String(a).localeCompare(String(b));
+    }
+
+    // —————————— LOGIN ——————————
+    async function handleLogin(){
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const err = document.getElementById('login-error');
+      const remember = document.getElementById('rememberMe').checked;
+      selectedSection = document.getElementById('sectionSelectorLogin').value;
+
+      err.textContent = '';
+      if (!username || !password) { err.textContent = "Entrez nom d'utilisateur et mot de passe."; return; }
+      setBtnLoading(document.getElementById('login-button'), true, 'fas fa-sign-in-alt');
+      try {
+        const r = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username, password }) });
+        const okJson = await r.json();
+        if (!r.ok || !okJson.success) throw new Error(okJson.message || 'Échec connexion.');
+
+        // restriction section côté front (admins passent partout)
+        if (!admins.has(username)) {
+          const g = new Set(['Abas','Jaber','Kamel','Majed','Mohamed Ali','Morched','Saeed','Sami','Sylvano','Tonga','Youssef','Zine']);
+          const f = new Set(['Abeer','Aichetou','Amal','Amal Arabic','Ange','Anouar','Emen','Farah','Fatima Islamic','Ghadah','Hana - Ameni - PE','Nada','Raghd ART','Salma','Sara','Souha','Takwa','Zohra Zidane']);
+          if (selectedSection==='garcons' && !g.has(username)) throw new Error('Utilisateur non autorisé (Garçons).');
+          if (selectedSection==='filles' && !f.has(username)) throw new Error('Utilisateur non autorisé (Filles).');
         }
 
-        // --- Fonctions de l'Application ---
-        async function handleLogin() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('login-error');
-            const rememberMeCheckbox = document.getElementById('rememberMe');
-            selectedSection = document.getElementById('sectionSelectorLogin').value;
+        loggedInUser = okJson.username;
+        if (remember) localStorage.setItem('rememberedUser', JSON.stringify({ user: loggedInUser, section: selectedSection }));
+        else localStorage.removeItem('rememberedUser');
 
-            errorDiv.textContent = '';
-            if (!username || !password) { 
-                errorDiv.textContent = "Entrez nom d'utilisateur et mot de passe."; 
-                return; 
-            }
-            
-            setButtonLoading(document.getElementById('login-button'), true, 'fas fa-sign-in-alt');
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('loggedInUserInfo').textContent = `Connecté: ${loggedInUser}`;
+        document.getElementById('main-title').textContent = `Plans Hebdomadaires - ${selectedSection[0].toUpperCase()+selectedSection.slice(1)}`;
 
-            try {
-                const response = await fetch('/api/login', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ username, password }) 
-                });
-                
-                const result = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(result.message || "Échec connexion.");
-                }
-
-                // Vérification des autorisations par section
-                if (!admins.has(username)) {
-                    if (selectedSection === 'garcons' && !garconsTeachers.has(username)) {
-                        throw new Error(`Utilisateur non autorisé dans la section Garçons.`);
-                    }
-                    if (selectedSection === 'filles' && !fillesTeachers.has(username)) {
-                        throw new Error(`Utilisateur non autorisé dans la section Filles.`);
-                    }
-                }
-                
-                loggedInUser = result.username;
-                
-                // Configuration de la langue
-                if (isArabicUser()) { 
-                    currentUserLanguage = 'ar'; 
-                } else if (isEnglishUser()) { 
-                    currentUserLanguage = 'en'; 
-                } else { 
-                    currentUserLanguage = 'fr'; 
-                }
-                
-                // Mémorisation de l'utilisateur
-                if (rememberMeCheckbox.checked) { 
-                    localStorage.setItem('rememberedUser', JSON.stringify({ user: loggedInUser, section: selectedSection })); 
-                } else { 
-                    localStorage.removeItem('rememberedUser'); 
-                }
-                
-                // Affichage du contenu principal
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-                document.getElementById('main-title').textContent = `${t('main_page_title')} - ${selectedSection.charAt(0).toUpperCase() + selectedSection.slice(1)}`;
-                
-                applyLanguageSettings();
-                document.getElementById('loggedInUserInfo').textContent = t('connected_as', { user: loggedInUser });
-                
-                // Affichage des actions admin si nécessaire
-                if (admins.has(loggedInUser)) {
-                    document.getElementById('admin-actions').style.display = 'flex';
-                    populateAdminReportClassSelector();
-                } else {
-                    document.getElementById('admin-actions').style.display = 'none';
-                }
-
-                resetMainContent();
-                displayAlert('welcome_user', false, { user: loggedInUser });
-                
-            } catch (error) {
-                errorDiv.textContent = error.message;
-            } finally {
-                setButtonLoading(document.getElementById('login-button'), false, 'fas fa-sign-in-alt');
-            }
-        }
-        
-        function handleLogout() {
-            loggedInUser = null; 
-            selectedSection = null;
-            localStorage.removeItem('rememberedUser');
-            document.getElementById('main-content').style.display = 'none';
-            document.getElementById('login-form').style.display = 'block';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('login-error').textContent = '';
-            currentUserLanguage = 'fr'; 
-            applyLanguageSettings();
-        }
-        
-        function togglePasswordVisibility() { 
-            const passwordInput = document.getElementById('password'); 
-            const toggleIcon = document.getElementById('togglePassword'); 
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password'; 
-            passwordInput.setAttribute('type', type); 
-            toggleIcon.className = (type === 'password') ? 'fas fa-eye password-toggle-icon' : 'fas fa-eye-slash password-toggle-icon'; 
-        }
-        
-        function resetMainContent() {
-            planData = []; 
-            filteredAndSortedData = []; 
-            headers = []; 
-            weeklyClassNotes = {};
-            currentWeek = null; 
-            weekStartDate = null; 
-            uploadedPlanData = null;
-            
-            document.getElementById('weekSelector').value = "";
-            document.getElementById('weekDateRange').textContent = "";
-            document.getElementById('excelFileInput').value = "";
-            document.getElementById('saveUploadedDataBtn').disabled = true;
-            document.getElementById('file-upload-status').textContent = "";
-            
-            displayPlanTable([]); 
-            populateFilterOptions(); 
-            populateNotesClassSelector(); 
-            checkAndDisplayIncompleteTeachers(); 
-            updateActionButtonsState(false);
-        }
-        
-        async function loadPlanForWeek() {
-            const week = document.getElementById('weekSelector').value;
-            if (!week) { 
-                resetMainContent(); 
-                return; 
-            }
-            
-            currentWeek = week;
-            displayAlert('loading_data_week', false, { week });
-            
-            try {
-                const response = await fetch(`/api/plans/${week}?section=${selectedSection}`);
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erreur serveur.');
-                }
-                
-                const result = await response.json();
-                planData = result.planData || [];
-                weeklyClassNotes = result.classNotes || {};
-                headers = planData.length > 0 ? Object.keys(planData[0]).filter(h => h !== '_id' && h !== 'id') : [];
-
-                // Configuration des dates de la semaine
-                const dates = specificWeekDateRanges[week];
-                if (dates?.start) {
-                    weekStartDate = new Date(dates.start + 'T00:00:00Z');
-                    document.getElementById('weekDateRange').textContent = `${t('week_label')} ${week} : du ${formatDateForDisplay(new Date(dates.start + 'T00:00:00Z'))} à ${formatDateForDisplay(new Date(dates.end + 'T00:00:00Z'))}`;
-                }
-                
-                populateFilterOptions();
-                sortAndDisplay();
-                populateNotesClassSelector();
-                checkAndDisplayIncompleteTeachers();
-                updateActionButtonsState(planData.length > 0);
-                
-                if (planData.length > 0) {
-                    displayAlert('data_loaded_week', false, { week });
-                } else {
-                    displayAlert('no_data_found_week', true, { week });
-                }
-                
-            } catch (error) {
-                console.error('Erreur chargement:', error);
-                displayAlert('error_loading_week', true, { week, error: error.message });
-                resetMainContent();
-            }
-        }
-        
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            const statusSpan = document.getElementById('file-upload-status');
-            const saveBtn = document.getElementById('saveUploadedDataBtn');
-            
-            uploadedPlanData = null; 
-            saveBtn.disabled = true; 
-            statusSpan.textContent = '';
-            
-            if (!file) { 
-                statusSpan.textContent = t('no_file_selected'); 
-                return; 
-            }
-            
-            statusSpan.textContent = t('reading_file', { fileName: file.name });
-            
-            if (!/\.(xlsx|xls)$/i.test(file.name)) { 
-                displayAlert("invalid_file_type", true); 
-                statusSpan.textContent = "Type invalide."; 
-                event.target.value = ''; 
-                return; 
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                try {
-                    const data = e.target.result;
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const jsonDataRaw = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: null, raw: false });
-                    
-                    if (jsonDataRaw.length < 2) {
-                        throw new Error('Le fichier doit contenir au moins une ligne d\'en-têtes et une ligne de données.');
-                    }
-                    
-                    const headersRaw = jsonDataRaw[0];
-                    const extractedHeaders = headersRaw.map(h => h ? String(h).trim().replace(/\s+/g, ' ') : null).filter(Boolean);
-                    
-                    if (extractedHeaders.length === 0) {
-                        throw new Error('Aucun en-tête valide trouvé dans le fichier.');
-                    }
-                    
-                    const dataRows = jsonDataRaw.slice(1);
-                    uploadedPlanData = dataRows.map((row) => { 
-                        if (!Array.isArray(row)) return null; 
-                        const obj = {}; 
-                        extractedHeaders.forEach((header, index) => { 
-                            obj[header] = row[index] || null; 
-                        }); 
-                        return Object.values(obj).some(val => val != null && String(val).trim() !== '') ? obj : null; 
-                    }).filter(Boolean);
-                    
-                    if (uploadedPlanData.length === 0) {
-                        throw new Error('Aucune donnée valide trouvée dans le fichier.');
-                    }
-                    
-                    statusSpan.textContent = t('file_read_success', { fileName: file.name, count: uploadedPlanData.length });
-                    saveBtn.disabled = false;
-                    
-                } catch (error) { 
-                    console.error('Erreur lecture fichier:', error);
-                    displayAlert('file_error', true, { error: error.message }); 
-                    statusSpan.textContent = 'Erreur: ' + error.message; 
-                    uploadedPlanData = null; 
-                    saveBtn.disabled = true; 
-                    event.target.value = ''; 
-                }
-            };
-            
-            reader.onerror = function() {
-                displayAlert('file_error', true, { error: 'Erreur de lecture du fichier' });
-                statusSpan.textContent = 'Erreur de lecture du fichier';
-                uploadedPlanData = null;
-                saveBtn.disabled = true;
-                event.target.value = '';
-            };
-            
-            reader.readAsArrayBuffer(file);
-        }
-
-        async function saveUploadedData() {
-            const selectedWeek = document.getElementById('weekSelector').value;
-            if (!selectedWeek) { 
-                displayAlert("please_select_week", true); 
-                return; 
-            }
-            
-            if (!uploadedPlanData || uploadedPlanData.length === 0) { 
-                displayAlert("no_data_to_save", true); 
-                return; 
-            }
-            
-            displayAlert('saving_uploaded_data', false, { week: selectedWeek });
-            setButtonLoading(document.getElementById('saveUploadedDataBtn'), true, 'fas fa-database');
-            
-            try {
-                const response = await fetch('/api/save-plan', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ 
-                        week: selectedWeek, 
-                        data: uploadedPlanData, 
-                        section: selectedSection 
-                    }) 
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erreur de sauvegarde');
-                }
-                
-                displayAlert('uploaded_data_saved', false, { week: selectedWeek });
-                
-                // Recharger les données si c'est la semaine courante
-                if (selectedWeek === currentWeek) { 
-                    await loadPlanForWeek(); 
-                }
-                
-            } catch (error) { 
-                console.error('Erreur sauvegarde:', error);
-                displayAlert('uploaded_data_error', true, { error: error.message }); 
-            } finally { 
-                setButtonLoading(document.getElementById('saveUploadedDataBtn'), false, 'fas fa-database'); 
-            }
-        }
-
-        async function saveRow(rowData, tableRowElement) {
-            const btn = tableRowElement.querySelector('.save-row-button');
-            setButtonLoading(btn, true, 'fas fa-check');
-            
-            try {
-                const response = await fetch('/api/save-row', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ 
-                        week: currentWeek, 
-                        data: rowData, 
-                        section: selectedSection 
-                    }) 
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erreur de sauvegarde de la ligne.');
-                }
-                
-                const result = await response.json();
-                tableRowElement.classList.remove('modified');
-                
-                const indicator = tableRowElement.querySelector('.save-indicator');
-                if (indicator) indicator.style.display = 'inline-block';
-                
-                const updK = findHKey('updatedAt');
-                if (updK && result.updatedData?.updatedAt) {
-                    rowData[updK] = result.updatedData.updatedAt;
-                    const updCell = tableRowElement.querySelector('.updated-at-column');
-                    if (updCell) updCell.textContent = formatUpdatedAt(result.updatedData.updatedAt);
-                }
-                
-            } catch(e) { 
-                console.error('Erreur sauvegarde ligne:', e);
-                displayAlert('error_saving_row', true, { error: e.message }); 
-            } finally { 
-                setButtonLoading(btn, false, 'fas fa-check'); 
-                checkAndDisplayIncompleteTeachers(); 
-            }
-        }
-
-        async function saveAllDisplayedRows() {
-            if (!filteredAndSortedData || filteredAndSortedData.length === 0) { 
-                displayAlert("no_rows_to_save", true); 
-                return; 
-            }
-            
-            if (!confirm(t('confirm_save_all', { count: filteredAndSortedData.length, week: currentWeek }))) {
-                return;
-            }
-            
-            setButtonLoading(document.getElementById('saveAllDisplayedBtn'), true, 'fas fa-save');
-            showProgressBar();
-            
-            let successCount = 0, errorCount = 0;
-            
-            for (let i = 0; i < filteredAndSortedData.length; i++) {
-                const rowData = filteredAndSortedData[i];
-                updateProgressBar(Math.round(((i + 1) / filteredAndSortedData.length) * 100));
-                
-                try {
-                    const response = await fetch('/api/save-row', { 
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify({ 
-                            week: currentWeek, 
-                            data: rowData, 
-                            section: selectedSection 
-                        }) 
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error('Erreur sauvegarde');
-                    }
-                    
-                    successCount++;
-                } catch (e) { 
-                    errorCount++; 
-                }
-            }
-            
-            hideProgressBar();
-            
-            if (errorCount === 0) { 
-                displayAlert('save_all_success', false, { count: successCount }); 
-            } else { 
-                displayAlert('save_all_partial', true, { success: successCount, error: errorCount }); 
-            }
-            
-            setButtonLoading(document.getElementById('saveAllDisplayedBtn'), false, 'fas fa-save');
-            await loadPlanForWeek();
-        }
-        
-        async function generateWordByClasse() {
-            if (!filteredAndSortedData.length) { 
-                displayAlert('no_data_to_display_filters', true); 
-                return; 
-            }
-            
-            setButtonLoading(document.getElementById('generateWordBtn'), true, 'fas fa-file-word');
-            
-            const dataByClass = {};
-            const classKey = findHKey('Classe');
-            
-            filteredAndSortedData.forEach(item => { 
-                const className = item[classKey]; 
-                if (!dataByClass[className]) dataByClass[className] = []; 
-                dataByClass[className].push(item); 
-            });
-            
-            let okCount = 0, errCount = 0;
-            
-            for (const className in dataByClass) {
-                try {
-                    const payload = { 
-                        week: currentWeek, 
-                        classe: className, 
-                        data: dataByClass[className], 
-                        notes: weeklyClassNotes[className] || '', 
-                        section: selectedSection 
-                    };
-                    
-                    const response = await fetch('/api/generate-word', { 
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify(payload) 
-                    });
-                    
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || `Erreur pour la classe ${className}`);
-                    }
-                    
-                    const blob = await response.blob();
-                    const filename = `Plan_${selectedSection}_S${currentWeek}_${className}.docx`;
-                    saveAs(blob, filename);
-                    okCount++;
-                    
-                } catch (e) { 
-                    console.error(`Erreur génération Word pour ${className}:`, e);
-                    errCount++; 
-                    displayAlert('error_generating_word_for', true, { classe: className, error: e.message }); 
-                }
-            }
-            
-            setButtonLoading(document.getElementById('generateWordBtn'), false, 'fas fa-file-word');
-            
-            if (okCount > 0) {
-                displayAlert('generating_word_success', false, { count: okCount });
-            }
-        }
-        
-        async function generateExcelWorkbook() {
-            if (!currentWeek) return;
-            
-            setButtonLoading(document.getElementById('generateExcelBtn'), true, 'fas fa-file-excel');
-            
-            try {
-                const response = await fetch('/api/generate-excel-workbook', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ 
-                        week: currentWeek, 
-                        section: selectedSection 
-                    }) 
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erreur de génération du fichier Excel.');
-                }
-                
-                const blob = await response.blob();
-                const filename = `Plan_Complet_${selectedSection}_S${currentWeek}.xlsx`;
-                saveAs(blob, filename);
-                displayAlert('generating_excel_success', false, { filename });
-                
-            } catch (e) { 
-                console.error('Erreur génération Excel:', e);
-                displayAlert('error_generating_excel', true, { error: e.message }); 
-            } finally { 
-                setButtonLoading(document.getElementById('generateExcelBtn'), false, 'fas fa-file-excel'); 
-            }
-        }
-        
-        async function populateAdminReportClassSelector() {
-            const select = document.getElementById('adminReportClassSelector');
-            select.innerHTML = `<option value="">${t('loading_classes')}</option>`;
-            select.disabled = true;
-            
-            try {
-                const response = await fetch(`/api/all-classes?section=${selectedSection}`);
-                
-                if (!response.ok) {
-                    throw new Error(`Erreur serveur ${response.status}`);
-                }
-                
-                const classes = await response.json();
-                
-                if (classes && classes.length > 0) {
-                    select.innerHTML = `<option value="">${t('select_report_class')}</option>`;
-                    classes.sort(compareClasses).forEach(cls => { 
-                        const opt = document.createElement('option'); 
-                        opt.value = cls; 
-                        const ar = classTranslations[cls]; 
-                        opt.textContent = ar ? `${ar} (${cls})` : cls; 
-                        select.appendChild(opt); 
-                    });
-                    select.disabled = false;
-                } else { 
-                    select.innerHTML = `<option value="">${t('no_classes_found')}</option>`; 
-                }
-                
-            } catch (error) { 
-                console.error('Erreur chargement classes:', error);
-                select.innerHTML = `<option value="">Erreur chargement</option>`; 
-            }
-        }
-
-        async function generateFullReportByClass() {
-            const selectedClass = document.getElementById('adminReportClassSelector').value;
-            if (!selectedClass) { 
-                displayAlert('please_select_class_for_report', true); 
-                return; 
-            }
-            
-            setButtonLoading(document.getElementById('generateFullReportBtn'), true, 'fas fa-file-invoice');
-            
-            try {
-                const response = await fetch('/api/full-report-by-class', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ 
-                        classe: selectedClass, 
-                        section: selectedSection 
-                    }) 
-                });
-                
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const filename = `Rapport_Complet_${selectedSection}_${selectedClass}.xlsx`;
-                    saveAs(blob, filename);
-                    displayAlert('generating_full_report_success', false, { classe: selectedClass });
-                } else { 
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erreur de génération'); 
-                }
-                
-            } catch (error) { 
-                console.error('Erreur rapport complet:', error);
-                displayAlert('generating_full_report_error', true, { classe: selectedClass, error: error.message }); 
-            } finally { 
-                setButtonLoading(document.getElementById('generateFullReportBtn'), false, 'fas fa-file-invoice'); 
-            }
-        }
-
-        function populateNotesClassSelector() {
-            const sel = document.getElementById('notesClassSelector');
-            const txt = document.getElementById('notesInput');
-            const btn = document.getElementById('saveNotesBtn');
-            
-            sel.innerHTML = `<option value="">${t('select_class')}</option>`;
-            
-            const clsK = findHKey('Classe');
-            if (!clsK || !planData || planData.length === 0) { 
-                txt.disabled = true; 
-                btn.disabled = true; 
-                return; 
-            }
-            
-            const uniqueCls = [...new Set(planData.map(i => i[clsK]).filter(Boolean))].sort(compareClasses);
-            uniqueCls.forEach(cls => { 
-                const opt = document.createElement('option'); 
-                opt.value = cls; 
-                const ar = classTranslations[cls]; 
-                opt.textContent = ar ? `${ar} (${cls})` : cls; 
-                sel.appendChild(opt); 
-            });
-            
-            txt.value = ''; 
-            txt.disabled = true; 
-            btn.disabled = true;
-        }
-
-        function displayClassNotes() {
-            const sel = document.getElementById('notesClassSelector');
-            const txt = document.getElementById('notesInput');
-            const btn = document.getElementById('saveNotesBtn');
-            const selCls = sel.value;
-            
-            if (selCls && weeklyClassNotes) { 
-                txt.value = weeklyClassNotes[selCls] || ''; 
-                txt.disabled = false; 
-                btn.disabled = false; 
-            } else { 
-                txt.value = ''; 
-                txt.disabled = true; 
-                btn.disabled = true; 
-            }
-            
-            document.getElementById('notes-save-status').textContent = '';
-        }
-
-        async function saveNotes() {
-            const selCls = document.getElementById('notesClassSelector').value;
-            if (!selCls || !currentWeek) return;
-            
-            setButtonLoading(document.getElementById('saveNotesBtn'), true, 'fas fa-save');
-            const notesVal = document.getElementById('notesInput').value;
-            
-            try {
-                const response = await fetch('/api/save-notes', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ 
-                        week: currentWeek, 
-                        classe: selCls, 
-                        notes: notesVal, 
-                        section: selectedSection 
-                    }) 
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erreur sauvegarde.');
-                }
-                
-                weeklyClassNotes[selCls] = notesVal;
-                displayAlert('notes_saved_success', false, { class: selCls, week: currentWeek });
-                
-            } catch (error) { 
-                console.error('Erreur sauvegarde notes:', error);
-                displayAlert('error_saving_notes', true, { error: error.message }); 
-            } finally { 
-                setButtonLoading(document.getElementById('saveNotesBtn'), false, 'fas fa-save'); 
-            }
-        }
-
-        function checkAndDisplayIncompleteTeachers() {
-            // Fonction pour vérifier les enseignants avec des travaux incomplets
-            // Cette fonction serait implémentée selon vos besoins spécifiques
-            const incompleteList = document.getElementById('incompleteList');
-            incompleteList.innerHTML = '<li>Fonction non implémentée</li>';
-        }
-        
-        function toggleIncompleteList() {
-            const display = document.getElementById('incompleteTeachersDisplay');
-            const btn = document.getElementById('toggleIncompleteBtn');
-            
-            if (display.style.display === 'none') {
-                display.style.display = 'block';
-                btn.innerHTML = '<i class="fas fa-list-check"></i> <span class="btn-text">Masquer Incomplets</span>';
-            } else {
-                display.style.display = 'none';
-                btn.innerHTML = '<i class="fas fa-list-check"></i> <span class="btn-text">Afficher Incomplets</span>';
-            }
-        }
-        
-        function applyLanguageSettings() {
-            // Fonction pour appliquer les paramètres de langue
-            // Cette fonction serait implémentée selon vos besoins de localisation
-        }
-        
-        function updateActionButtonsState(isEnabled) { 
-            document.getElementById('generateWordBtn').disabled = !isEnabled; 
-            document.getElementById('generateExcelBtn').disabled = !isEnabled; 
-            document.getElementById('saveAllDisplayedBtn').disabled = !isEnabled; 
-        }
-
-        function populateFilterOptions() {
-            // Fonction pour peupler les options de filtrage
-            // Cette fonction serait implémentée selon vos besoins spécifiques
-        }
-
-        function sortAndDisplay() {
-            // Fonction pour trier et afficher les données
-            // Cette fonction serait implémentée selon vos besoins spécifiques
-            displayPlanTable(planData);
-        }
-
-        function displayPlanTable(data) {
-            const table = document.getElementById('planTable');
-            const tbody = table.querySelector('tbody');
-            const thead = table.querySelector('thead tr');
-            
-            // Réinitialiser le tableau
-            thead.innerHTML = '';
-            tbody.innerHTML = '';
-            
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 20px; color: grey;">Aucune donnée à afficher</td></tr>';
-                return;
-            }
-            
-            // Créer les en-têtes
-            const sampleRow = data[0];
-            const displayHeaders = Object.keys(sampleRow).filter(h => h !== '_id' && h !== 'id');
-            
-            displayHeaders.forEach(header => {
-                const th = document.createElement('th');
-                th.textContent = header;
-                thead.appendChild(th);
-            });
-            
-            // Ajouter colonne Actions
-            const actionTh = document.createElement('th');
-            actionTh.textContent = 'Actions';
-            thead.appendChild(actionTh);
-            
-            // Créer les lignes de données
-            data.forEach((rowData, index) => {
-                const tr = document.createElement('tr');
-                
-                displayHeaders.forEach(header => {
-                    const td = document.createElement('td');
-                    td.textContent = rowData[header] || '';
-                    
-                    // Rendre certaines cellules éditables
-                    if (['Leçon', 'Travaux de classe', 'Support', 'Devoirs'].includes(header)) {
-                        td.classList.add('editable');
-                        td.contentEditable = true;
-                        
-                        td.addEventListener('input', function() {
-                            rowData[header] = this.textContent;
-                            tr.classList.add('modified');
-                        });
-                    }
-                    
-                    tr.appendChild(td);
-                });
-                
-                // Colonne Actions
-                const actionTd = document.createElement('td');
-                actionTd.classList.add('actions-column');
-                actionTd.innerHTML = `
-                    <button class="save-row-button" onclick="saveRow(planData[${index}], this.parentElement.parentElement)" title="Enregistrer cette ligne">
-                        <i class="fas fa-check"></i>
-                    </button>
-                    <span class="save-indicator" style="display: none;">
-                        <i class="fas fa-check-circle"></i>
-                    </span>
-                `;
-                tr.appendChild(actionTd);
-                
-                tbody.appendChild(tr);
-            });
-            
-            filteredAndSortedData = data;
-        }
-
-        // Initialisation au chargement de la page
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('login-button').addEventListener('click', handleLogin);
-            document.getElementById('logout-button').addEventListener('click', handleLogout);
-            document.getElementById('togglePassword').addEventListener('click', togglePasswordVisibility);
-            
-            // Vérifier si un utilisateur est mémorisé
-            const remembered = localStorage.getItem('rememberedUser');
-            if (remembered) {
-                try {
-                    const { user, section } = JSON.parse(remembered);
-                    if (user && section) {
-                        document.getElementById('username').value = user;
-                        document.getElementById('sectionSelectorLogin').value = section;
-                        document.getElementById('rememberMe').checked = true;
-                    }
-                } catch (e) { 
-                    localStorage.removeItem('rememberedUser'); 
-                }
-            }
-            
-            // Permettre la connexion avec la touche Entrée
-            document.getElementById('password').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    handleLogin();
-                }
-            });
+        // remplir liste semaines
+        const weekSel = document.getElementById('weekSelector');
+        weekSel.innerHTML = '<option value="">-- Sélectionnez une semaine --</option>';
+        weeks.forEach(w => {
+          const opt = document.createElement('option'); opt.value = w; opt.textContent = `Semaine ${w}`; weekSel.appendChild(opt);
         });
-    </script>
+
+        // admin UI
+        document.getElementById('admin-actions').style.display = admins.has(loggedInUser) ? 'flex' : 'none';
+
+        alertMsg(`Bienvenue ${loggedInUser}!`, 'success');
+      } catch (e) {
+        err.textContent = e.message;
+      } finally {
+        setBtnLoading(document.getElementById('login-button'), false, 'fas fa-sign-in-alt');
+      }
+    }
+
+    function handleLogout(){
+      loggedInUser = null; selectedSection = null;
+      localStorage.removeItem('rememberedUser');
+      document.getElementById('main-content').style.display = 'none';
+      document.getElementById('login-form').style.display = 'block';
+      document.getElementById('username').value=''; document.getElementById('password').value='';
+      document.getElementById('login-error').textContent='';
+    }
+
+    // —————————— DATA FLOW ——————————
+    async function loadPlanForWeek() {
+      const week = document.getElementById('weekSelector').value;
+      if (!week) { resetMain(); return; }
+      currentWeek = week;
+
+      try {
+        const r = await fetch(`/api/plans/${week}?section=${selectedSection}`);
+        const ct = (r.headers.get('content-type') || '').toLowerCase();
+        if (!ct.includes('application/json')) {
+          const txt = await r.text();
+          throw new Error(`Réponse non-JSON (status ${r.status}) : ${txt.slice(0,160)}`);
+        }
+        const data = await r.json();
+        planData = Array.isArray(data.planData) ? data.planData : [];
+        weeklyClassNotes = data.classNotes || {};
+
+        // headers: nettoyer pour l’affichage
+        headers = planData.length ? Object.keys(planData[0]).filter(h => h !== '_id' && h !== 'id') : [];
+        if (!headers.length) headers = ['Enseignant','Jour','Période','Classe','Matière','Leçon','Travaux de classe','Support','Devoirs'];
+
+        // dates semaine
+        const info = specificWeekDateRanges[week];
+        const f = d => {
+          const x = new Date(d+'T00:00:00Z');
+          const m = ['Janv','Fév','Mars','Avr','Mai','Juin','Juil','Août','Sept','Oct','Nov','Déc'];
+          const j = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+          return `${j[x.getUTCDay()]} ${String(x.getUTCDate()).padStart(2,'0')} ${m[x.getUTCMonth()]} ${x.getUTCFullYear()}`;
+        };
+        document.getElementById('weekDateRange').textContent = info ? `Semaine ${week} : du ${f(info.start)} à ${f(info.end)}` : `Semaine ${week}`;
+
+        filteredData = planData.slice();
+        renderTable();
+        populateNotesClassSelector();
+        updateActionButtonsState(planData.length>0);
+        populateAdminReportClassSelector();
+      } catch (e) {
+        alertMsg(`Erreur chargement S${week}: ${e.message}`, 'error');
+        resetMain();
+      }
+    }
+
+    function resetMain(){
+      planData = []; filteredData = []; headers = []; weeklyClassNotes = {};
+      document.querySelector('#planTable thead tr').innerHTML = '';
+      document.querySelector('#planTable tbody').innerHTML =
+        '<tr><td colspan="10" style="text-align:center;padding:20px;color:#777">Veuillez sélectionner une semaine pour afficher les données.</td></tr>';
+      document.getElementById('generateWordBtn').disabled = true;
+      document.getElementById('generateExcelBtn').disabled = true;
+      document.getElementById('saveAllDisplayedBtn').disabled = true;
+      document.getElementById('weekDateRange').textContent = '';
+      document.getElementById('notesClassSelector').innerHTML = '<option value="">-- Sélectionnez une classe --</option>';
+      document.getElementById('notesInput').value = ''; document.getElementById('notesInput').disabled = true;
+      document.getElementById('saveNotesBtn').disabled = true;
+      document.getElementById('excelFileInput').value = '';
+      document.getElementById('saveUploadedDataBtn').disabled = true;
+      document.getElementById('file-upload-status').textContent = '';
+    }
+
+    // Rendu du tableau minimal + édition Leçon/Travaux/Support/Devoirs
+    function renderTable(){
+      const thead = document.querySelector('#planTable thead tr');
+      const tbody = document.querySelector('#planTable tbody');
+      thead.innerHTML = ''; tbody.innerHTML = '';
+
+      const displayHeaders = [...new Set([
+        'Enseignant','Jour','Période','Classe','Matière','Leçon','Travaux de classe','Support','Devoirs','updatedAt','__actions'
+      ])].filter(h => h !== 'updatedAt' || planData.some(r => r.updatedAt));
+
+      displayHeaders.forEach(h => {
+        const th = document.createElement('th');
+        th.textContent = (h === '__actions') ? 'Actions' : h;
+        if (h === 'updatedAt') th.textContent = 'Mis à jour';
+        thead.appendChild(th);
+      });
+
+      const editable = new Set(['Leçon','Travaux de classe','Support','Devoirs']);
+
+      filteredData.forEach((row, idx) => {
+        const tr = document.createElement('tr');
+
+        displayHeaders.forEach(h => {
+          const td = document.createElement('td');
+          if (h === '__actions') {
+            td.className = 'actions-column';
+            const btn = document.createElement('button');
+            btn.className = 'save-row-button';
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            btn.addEventListener('click', async () => {
+              await saveRow(row, tr);
+            });
+            td.appendChild(btn);
+          } else if (editable.has(h)) {
+            td.className = 'editable';
+            td.contentEditable = true;
+            td.textContent = row[h] ?? '';
+            td.addEventListener('input', () => {
+              row[h] = td.textContent;
+              tr.classList.add('modified');
+            });
+          } else if (h === 'updatedAt') {
+            td.className = 'updated-at-column';
+            td.textContent = row.updatedAt ? formatUpdatedAt(row.updatedAt) : '';
+          } else {
+            td.textContent = row[h] ?? '';
+          }
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function formatUpdatedAt(s){
+      if (!s) return '';
+      const d = new Date(s);
+      if (isNaN(d.getTime())) return '';
+      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+
+    async function saveRow(rowData, trEl){
+      const btn = trEl.querySelector('.save-row-button');
+      setBtnLoading(btn, true, 'fas fa-check');
+      try{
+        const r = await fetch('/api/save-row', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ week: currentWeek, data: rowData, section: selectedSection }) });
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.message || 'Erreur de sauvegarde.');
+        trEl.classList.remove('modified');
+        const upd = trEl.querySelector('.updated-at-column');
+        if (upd && j.updatedData?.updatedAt) upd.textContent = formatUpdatedAt(j.updatedData.updatedAt);
+        alertMsg('Ligne enregistrée.', 'success');
+      } catch(e){
+        alertMsg(`Erreur enregistrement: ${e.message}`, 'error');
+      } finally {
+        setBtnLoading(btn, false, 'fas fa-check');
+      }
+    }
+
+    // Enregistrer toutes les lignes affichées
+    async function saveAllDisplayedRows(){
+      if (!filteredData.length) { alertMsg('Aucune ligne à enregistrer.', 'error'); return; }
+      if (!confirm(`Confirmer l'enregistrement de ${filteredData.length} lignes pour la S${currentWeek} ?`)) return;
+      setBtnLoading(document.getElementById('saveAllDisplayedBtn'), true, 'fas fa-save');
+      let ok=0, err=0;
+      for (const row of filteredData){
+        try{
+          const r = await fetch('/api/save-row', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ week: currentWeek, data: row, section: selectedSection }) });
+          if (!r.ok) throw new Error();
+          ok++;
+        } catch { err++; }
+      }
+      alertMsg(err?`Enregistrement terminé: ${ok} succès, ${err} erreurs.`:'Toutes les lignes enregistrées.', err?'warning':'success');
+      setBtnLoading(document.getElementById('saveAllDisplayedBtn'), false, 'fas fa-save');
+      await loadPlanForWeek();
+    }
+
+    // Upload Excel → activer bouton + sauvegarder DB
+    function handleFileUpload(e){
+      const file = e.target.files[0];
+      const status = document.getElementById('file-upload-status');
+      const saveBtn = document.getElementById('saveUploadedDataBtn');
+      uploadedPlanData = null; saveBtn.disabled = true; status.textContent = '';
+
+      if (!file){ status.textContent = 'Aucun fichier sélectionné.'; return; }
+      if (!/\.(xlsx|xls)$/i.test(file.name)){ status.textContent = 'Type invalide (xlsx/xls).'; e.target.value=''; return; }
+
+      status.textContent = `Lecture du fichier ${file.name}...`;
+      const reader = new FileReader();
+      reader.onload = function(ev){
+        try{
+          const wb = XLSX.read(ev.target.result, { type:'array' });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:null, raw:false });
+          const hdr = rows[0].map(h => h ? String(h).trim().replace(/\s+/g,' ') : null).filter(Boolean);
+          uploadedPlanData = rows.slice(1).map(r=>{
+            const o = {}; hdr.forEach((h,i)=>{ o[h] = r[i] ?? null; });
+            return Object.values(o).some(v=>v!=null && String(v).trim()!=='') ? o : null;
+          }).filter(Boolean);
+          status.textContent = `Fichier ${file.name} lu (${uploadedPlanData.length} lignes).`;
+          saveBtn.disabled = !uploadedPlanData.length;
+        }catch(err){
+          status.textContent = `Erreur lecture: ${err.message}`;
+          uploadedPlanData = null; saveBtn.disabled = true; e.target.value='';
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    async function saveUploadedData(){
+      const week = document.getElementById('weekSelector').value;
+      if (!week) { alertMsg('Sélectionnez une semaine.', 'error'); return; }
+      if (!uploadedPlanData?.length) { alertMsg('Aucune donnée chargée.', 'error'); return; }
+      setBtnLoading(document.getElementById('saveUploadedDataBtn'), true, 'fas fa-database');
+
+      try{
+        const r = await fetch('/api/save-plan', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ week, data: uploadedPlanData, section: selectedSection }) });
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.message || 'Erreur serveur.');
+        alertMsg(`Données chargées enregistrées pour S${week}.`, 'success');
+        if (String(week) === String(currentWeek)) await loadPlanForWeek();
+      }catch(e){
+        alertMsg(`Erreur d'enregistrement: ${e.message}`, 'error');
+      }finally{
+        setBtnLoading(document.getElementById('saveUploadedDataBtn'), false, 'fas fa-database');
+      }
+    }
+
+    // Exports
+    async function generateExcelWorkbook(){
+      if (!currentWeek) return;
+      setBtnLoading(document.getElementById('generateExcelBtn'), true, 'fas fa-file-excel');
+      try{
+        const r = await fetch('/api/generate-excel-workbook', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ week: currentWeek, section: selectedSection }) });
+        if (!r.ok) throw new Error('Erreur de génération.');
+        const blob = await r.blob();
+        saveAs(blob, `Plan_Complet_${selectedSection}_S${currentWeek}.xlsx`);
+        alertMsg('Fichier Excel généré.', 'success');
+      }catch(e){
+        alertMsg(e.message, 'error');
+      }finally{
+        setBtnLoading(document.getElementById('generateExcelBtn'), false, 'fas fa-file-excel');
+      }
+    }
+
+    async function generateWordByClasse(){
+      if (!filteredData.length){ alertMsg('Aucune donnée à exporter.', 'error'); return; }
+      setBtnLoading(document.getElementById('generateWordBtn'), true, 'fas fa-file-word');
+      const byClass = {};
+      filteredData.forEach(r => {
+        const c = r['Classe'];
+        if (!byClass[c]) byClass[c] = [];
+        byClass[c].push(r);
+      });
+      let ok=0, err=0;
+      for (const cls of Object.keys(byClass)){
+        try{
+          const r = await fetch('/api/generate-word', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ week: currentWeek, classe: cls, data: byClass[cls], notes: weeklyClassNotes[cls] || '', section: selectedSection }) });
+          if (!r.ok) throw new Error(`Erreur pour ${cls}`);
+          const blob = await r.blob();
+          saveAs(blob, `Plan_${selectedSection}_S${currentWeek}_${cls}.docx`);
+          ok++;
+        }catch(e){ err++; }
+      }
+      alertMsg(err?`DOCX: ${ok} succès / ${err} erreurs.`:'DOCX générés.', err?'warning':'success');
+      setBtnLoading(document.getElementById('generateWordBtn'), false, 'fas fa-file-word');
+    }
+
+    // Notes
+    function populateNotesClassSelector(){
+      const sel = document.getElementById('notesClassSelector');
+      const txt = document.getElementById('notesInput');
+      const btn = document.getElementById('saveNotesBtn');
+      sel.innerHTML = '<option value="">-- Sélectionnez une classe --</option>';
+      const classes = [...new Set(planData.map(r => r['Classe']).filter(Boolean))].sort(compareClasses);
+      classes.forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
+      txt.value=''; txt.disabled=true; btn.disabled=true;
+    }
+
+    function displayClassNotes(){
+      const sel = document.getElementById('notesClassSelector');
+      const txt = document.getElementById('notesInput');
+      const btn = document.getElementById('saveNotesBtn');
+      const c = sel.value;
+      if (!c){ txt.value=''; txt.disabled=true; btn.disabled=true; return; }
+      txt.value = weeklyClassNotes[c] || '';
+      txt.disabled=false; btn.disabled=false;
+      document.getElementById('notes-save-status').textContent='';
+    }
+
+    async function saveNotes(){
+      const c = document.getElementById('notesClassSelector').value;
+      if (!c || !currentWeek) return;
+      setBtnLoading(document.getElementById('saveNotesBtn'), true, 'fas fa-save');
+      try{
+        const r = await fetch('/api/save-notes', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ week: currentWeek, classe: c, notes: document.getElementById('notesInput').value, section: selectedSection }) });
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.message || 'Erreur sauvegarde.');
+        weeklyClassNotes[c] = document.getElementById('notesInput').value;
+        alertMsg(`Notes enregistrées pour ${c}, S${currentWeek}.`, 'success');
+      }catch(e){
+        alertMsg(`Erreur d'enregistrement: ${e.message}`, 'error');
+      }finally{
+        setBtnLoading(document.getElementById('saveNotesBtn'), false, 'fas fa-save');
+      }
+    }
+
+    // Admin: classes pour rapport
+    async function populateAdminReportClassSelector(){
+      const sel = document.getElementById('adminReportClassSelector');
+      if (!admins.has(loggedInUser)){ sel.innerHTML='<option value="">(non admin)</option>'; return; }
+      sel.innerHTML = '<option value="">-- Chargement des classes --</option>';
+      try{
+        const r = await fetch(`/api/all-classes?section=${selectedSection}`);
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.message || 'Erreur serveur');
+        sel.innerHTML = '<option value="">-- Sélectionnez une classe pour le rapport --</option>';
+        j.sort(compareClasses).forEach(c => { const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
+      }catch(e){
+        sel.innerHTML = '<option value="">Erreur chargement</option>';
+      }
+    }
+
+    async function generateFullReportByClass(){
+      const c = document.getElementById('adminReportClassSelector').value;
+      if (!c) { alertMsg('Veuillez sélectionner une classe.', 'error'); return; }
+      setBtnLoading(document.getElementById('generateFullReportBtn'), true, 'fas fa-file-invoice');
+      try{
+        const r = await fetch('/api/full-report-by-class', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ classe: c, section: selectedSection }) });
+        if (!r.ok) { const j = await r.json(); throw new Error(j.message || 'Erreur'); }
+        const blob = await r.blob();
+        saveAs(blob, `Rapport_Complet_${selectedSection}_${c}.xlsx`);
+        alertMsg(`Rapport complet généré pour ${c}.`, 'success');
+      }catch(e){
+        alertMsg(e.message, 'error');
+      }finally{
+        setBtnLoading(document.getElementById('generateFullReportBtn'), false, 'fas fa-file-invoice');
+      }
+    }
+
+    function updateActionButtonsState(en){
+      document.getElementById('generateWordBtn').disabled = !en;
+      document.getElementById('generateExcelBtn').disabled = !en;
+      document.getElementById('saveAllDisplayedBtn').disabled = !en;
+    }
+
+    // —————————— EVENTS ——————————
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('login-button').addEventListener('click', handleLogin);
+      document.getElementById('logout-button').addEventListener('click', handleLogout);
+      document.getElementById('togglePassword').addEventListener('click', () => {
+        const inp = document.getElementById('password');
+        const t = inp.getAttribute('type') === 'password' ? 'text' : 'password';
+        inp.setAttribute('type', t);
+        document.getElementById('togglePassword').className = t==='password' ? 'fas fa-eye password-toggle-icon' : 'fas fa-eye-slash password-toggle-icon';
+      });
+
+      document.getElementById('weekSelector').addEventListener('change', loadPlanForWeek);
+      document.getElementById('excelFileInput').addEventListener('change', handleFileUpload);
+      document.getElementById('saveUploadedDataBtn').addEventListener('click', saveUploadedData);
+      document.getElementById('generateExcelBtn').addEventListener('click', generateExcelWorkbook);
+      document.getElementById('generateWordBtn').addEventListener('click', generateWordByClasse);
+      document.getElementById('saveAllDisplayedBtn').addEventListener('click', saveAllDisplayedRows);
+      document.getElementById('notesClassSelector').addEventListener('change', displayClassNotes);
+      document.getElementById('saveNotesBtn').addEventListener('click', saveNotes);
+
+      // auto-remplissage si "remember me"
+      const remembered = localStorage.getItem('rememberedUser');
+      if (remembered){
+        try{
+          const { user, section } = JSON.parse(remembered);
+          if (user && section){
+            document.getElementById('username').value = user;
+            document.getElementById('sectionSelectorLogin').value = section;
+            document.getElementById('rememberMe').checked = true;
+          }
+        }catch{}
+      }
+    });
+  </script>
 </body>
 </html>
