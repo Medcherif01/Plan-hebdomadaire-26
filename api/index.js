@@ -403,12 +403,17 @@ app.post('/api/full-report-by-class', async (req, res) => {
   }
 });
 
-// ===== IA : Génération d’un mini plan de leçon par ligne =====
+/**
+ * ===== IA : Génération de plan de leçon complet (45 min)
+ * Entrée: { row, seanceMinutes? (default 45), locale? }
+ * Sortie: { ok, plan: { ...structure... } }
+ * + un "extract" prêt à injecter dans les colonnes Leçon / Travaux / Support / Devoirs
+ */
 app.post('/api/generate-ai-lesson-plan', async (req, res) => {
   try {
     if (!geminiModel) return res.status(503).json({ message: 'Service IA non configuré.' });
 
-    const { row, locale } = req.body || {};
+    const { row, seanceMinutes = 45, locale = 'fr' } = req.body || {};
     if (!row) return res.status(400).json({ message: 'Paramètre "row" manquant.' });
 
     const enseignant = row[findKey(row,'Enseignant')] || '';
@@ -416,63 +421,89 @@ app.post('/api/generate-ai-lesson-plan', async (req, res) => {
     const matiere = row[findKey(row,'Matière')] || '';
     const jour = row[findKey(row,'Jour')] || '';
     const periode = row[findKey(row,'Période')] || '';
-    const niveau = String(classe || '').toUpperCase();
+    const leconInit = row[findKey(row,'Leçon')] || '';
+    const travauxInit = row[findKey(row,'Travaux de classe')] || '';
+    const supportInit = row[findKey(row,'Support')] || '';
+    const devoirsInit = row[findKey(row,'Devoirs')] || '';
 
-    // Contrainte : retour JSON strict
     const prompt = `
-Tu es un enseignant. Propose une préparation courte, claire et actionnable
-pour une séance unique.
+Tu es un enseignant expert. Génère un plan de leçon COMPLET pour une séance de ${seanceMinutes} minutes.
+Langue: ${locale.toUpperCase()}.
+Retourne STRICTEMENT du JSON (aucun texte autour).
 
-Retourne STRICTEMENT du JSON (aucun texte avant/après) avec les clés EXACTES:
+Structure EXACTE attendue:
 {
-  "Leçon": "...",
-  "Travaux de classe": "...",
-  "Support": "...",
-  "Devoirs": "..."
+  "meta": {
+    "matiere": "...",
+    "classe": "...",
+    "duree": ${seanceMinutes},
+    "jour": "...",
+    "periode": "..."
+  },
+  "objectifs": ["...","..."],
+  "competences": ["...","..."],
+  "materiel": ["...","..."],
+  "deroule": [
+    {"phase": "Accroche", "duree": 5, "activites": ["..."]},
+    {"phase": "Découverte/Modelisation", "duree": 10, "activites": ["..."]},
+    {"phase": "Pratique guidée", "duree": 15, "activites": ["..."]},
+    {"phase": "Pratique autonome", "duree": 10, "activites": ["..."]},
+    {"phase": "Bilan/Trace écrite", "duree": 5, "activites": ["..."]}
+  ],
+  "differenciation": {
+    "soutien": ["..."],
+    "approfondissement": ["..."]
+  },
+  "evaluation": {
+    "formative": ["..."],
+    "criteres_de_reussite": ["..."]
+  },
+  "devoirs": "..."
 }
 
-Contrainte: 1 à 3 phrases par champ, concises.
-Langue: ${(locale || 'fr').toUpperCase()}.
-Contexte:
+Contexte à respecter:
 - Enseignant: ${enseignant}
-- Classe (niveau): ${niveau}
+- Classe: ${classe}
 - Matière: ${matiere}
 - Jour: ${jour}, Période: ${periode}
-- Si des valeurs existent déjà dans la ligne, propose des compléments cohérents.
+- Éléments déjà saisis par l'enseignant (à intégrer si pertinents):
+  - Leçon: ${leconInit}
+  - Travaux de classe: ${travauxInit}
+  - Support: ${supportInit}
+  - Devoirs: ${devoirsInit}
 
-Exemples de Support: "manuel p. xx", "fiche élève", "vidéo courte", "diaporama".
-    `.trim();
+Contraintes:
+- Les durées du 'deroule' doivent totaliser ${seanceMinutes} minutes (±1 min toléré).
+- Phrases courtes, actionnables, adaptées au niveau de la classe.
+`.trim();
 
     const gen = await geminiModel.generateContent(prompt);
     let text = gen?.response?.text?.() || '';
 
-    // Tenter d'extraire du JSON même s'il est entouré de balises
-    const match = text.match(/```json([\s\S]*?)```/i);
-    if (match) text = match[1].trim();
+    // Récup JSON propre même si le modèle renvoie des balises
+    const fenced = text.match(/```json([\s\S]*?)```/i);
+    if (fenced) text = fenced[1].trim();
 
-    let json;
+    // Dernière chance: tronquer dehors
+    const s = text.indexOf('{'), e = text.lastIndexOf('}');
+    if (s !== -1 && e !== -1) text = text.slice(s, e + 1);
+
+    let plan;
     try {
-      json = JSON.parse(text);
-    } catch (e) {
-      // Dernier recours: enlever éventuels préfixes/suffixes
-      const start = text.indexOf('{');
-      const end = text.lastIndexOf('}');
-      if (start !== -1 && end !== -1 && end > start) {
-        json = JSON.parse(text.slice(start, end + 1));
-      } else {
-        return res.status(502).json({ message: 'Réponse IA non JSON.' });
-      }
+      plan = JSON.parse(text);
+    } catch (err) {
+      return res.status(502).json({ message: 'Réponse IA non JSON.' });
     }
 
-    // Normaliser clés attendues
-    const out = {
-      'Leçon': String(json['Leçon'] || json['Lesson'] || '').trim(),
-      'Travaux de classe': String(json['Travaux de classe'] || json['Classwork'] || '').trim(),
-      'Support': String(json['Support'] || '').trim(),
-      'Devoirs': String(json['Devoirs'] || json['Homework'] || '').trim()
+    // Extrait prêt à injecter dans les colonnes
+    const extract = {
+      'Leçon': (plan?.objectifs?.[0] ? `Objectifs: ${plan.objectifs.join(' ; ')}` : (leconInit || '')).slice(0, 900),
+      'Travaux de classe': (Array.isArray(plan?.deroule) ? plan.deroule.map(p => `${p.phase} (${p.duree}’): ${Array.isArray(p.activites)?p.activites.join(' / '):''}`).join(' | ') : travauxInit || '').slice(0, 1800),
+      'Support': (plan?.materiel?.length ? plan.materiel.join(' ; ') : supportInit || '').slice(0, 400),
+      'Devoirs': (plan?.devoirs || devoirsInit || '').slice(0, 400)
     };
 
-    return res.status(200).json({ ok: true, suggestion: out });
+    return res.status(200).json({ ok: true, plan, extract });
   } catch (e) {
     console.error('/api/generate-ai-lesson-plan', e);
     return res.status(500).json({ message: 'Erreur IA.' });
