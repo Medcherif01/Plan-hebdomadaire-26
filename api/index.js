@@ -81,7 +81,7 @@ async function getDb() {
     await _mongo.connect();
     globalThis.__mongoClient = _mongo;
   }
-  _db = _mongo.db(); // par défaut, DB du URI
+  _db = _mongo.db();
   globalThis.__mongoDb = _db;
   return _db;
 }
@@ -403,10 +403,80 @@ app.post('/api/full-report-by-class', async (req, res) => {
   }
 });
 
-// IA (placeholder)
-app.post('/api/generate-ai-lesson-plan', (req, res) => {
-  if (!geminiModel) return res.status(503).json({ message: 'Service IA non configuré.' });
-  return res.status(501).json({ message: 'Fonction IA non implémentée.' });
+// ===== IA : Génération d’un mini plan de leçon par ligne =====
+app.post('/api/generate-ai-lesson-plan', async (req, res) => {
+  try {
+    if (!geminiModel) return res.status(503).json({ message: 'Service IA non configuré.' });
+
+    const { row, locale } = req.body || {};
+    if (!row) return res.status(400).json({ message: 'Paramètre "row" manquant.' });
+
+    const enseignant = row[findKey(row,'Enseignant')] || '';
+    const classe = row[findKey(row,'Classe')] || '';
+    const matiere = row[findKey(row,'Matière')] || '';
+    const jour = row[findKey(row,'Jour')] || '';
+    const periode = row[findKey(row,'Période')] || '';
+    const niveau = String(classe || '').toUpperCase();
+
+    // Contrainte : retour JSON strict
+    const prompt = `
+Tu es un enseignant. Propose une préparation courte, claire et actionnable
+pour une séance unique.
+
+Retourne STRICTEMENT du JSON (aucun texte avant/après) avec les clés EXACTES:
+{
+  "Leçon": "...",
+  "Travaux de classe": "...",
+  "Support": "...",
+  "Devoirs": "..."
+}
+
+Contrainte: 1 à 3 phrases par champ, concises.
+Langue: ${(locale || 'fr').toUpperCase()}.
+Contexte:
+- Enseignant: ${enseignant}
+- Classe (niveau): ${niveau}
+- Matière: ${matiere}
+- Jour: ${jour}, Période: ${periode}
+- Si des valeurs existent déjà dans la ligne, propose des compléments cohérents.
+
+Exemples de Support: "manuel p. xx", "fiche élève", "vidéo courte", "diaporama".
+    `.trim();
+
+    const gen = await geminiModel.generateContent(prompt);
+    let text = gen?.response?.text?.() || '';
+
+    // Tenter d'extraire du JSON même s'il est entouré de balises
+    const match = text.match(/```json([\s\S]*?)```/i);
+    if (match) text = match[1].trim();
+
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch (e) {
+      // Dernier recours: enlever éventuels préfixes/suffixes
+      const start = text.indexOf('{');
+      const end = text.lastIndexOf('}');
+      if (start !== -1 && end !== -1 && end > start) {
+        json = JSON.parse(text.slice(start, end + 1));
+      } else {
+        return res.status(502).json({ message: 'Réponse IA non JSON.' });
+      }
+    }
+
+    // Normaliser clés attendues
+    const out = {
+      'Leçon': String(json['Leçon'] || json['Lesson'] || '').trim(),
+      'Travaux de classe': String(json['Travaux de classe'] || json['Classwork'] || '').trim(),
+      'Support': String(json['Support'] || '').trim(),
+      'Devoirs': String(json['Devoirs'] || json['Homework'] || '').trim()
+    };
+
+    return res.status(200).json({ ok: true, suggestion: out });
+  } catch (e) {
+    console.error('/api/generate-ai-lesson-plan', e);
+    return res.status(500).json({ message: 'Erreur IA.' });
+  }
 });
 
 // Export pour Vercel
