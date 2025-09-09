@@ -64,6 +64,25 @@
       <select id="weekSelector"></select>
     </div>
 
+    <!-- BARRE DE TRI -->
+    <div class="filter-container">
+      <label><i class="fas fa-arrow-down-a-z"></i> Tri :</label>
+      <select id="sortKey">
+        <option value="Classe">Classe</option>
+        <option value="Enseignant">Enseignant</option>
+        <option value="Matière">Matière</option>
+        <option value="Jour">Jour</option>
+        <option value="Période">Période</option>
+        <option value="updatedAt">Mis à jour</option>
+      </select>
+      <select id="sortOrder">
+        <option value="asc">Ascendant</option>
+        <option value="desc">Descendant</option>
+      </select>
+      <button id="applySortBtn" class="pro-button"><i class="fas fa-sort"></i> Appliquer</button>
+      <button id="resetSortBtn" class="pro-button"><i class="fas fa-rotate-right"></i> Réinitialiser</button>
+    </div>
+
     <div id="admin-actions" class="filter-container admin-section" style="display:none;">
       <h3>Actions Administrateur</h3>
       <div>
@@ -106,7 +125,7 @@
     <div class="table-responsive-wrapper">
       <table id="planTable">
         <thead><tr></tr></thead>
-        <tbody><tr id="initial-table-row"><td id="initial-table-message" colspan="10" style="text-align:center;padding:20px;color:#777">Veuillez sélectionner une semaine pour afficher les données.</td></tr></tbody>
+        <tbody><tr id="initial-table-row"><td id="initial-table-message" colspan="12" style="text-align:center;padding:20px;color:#777">Veuillez sélectionner une semaine pour afficher les données.</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -125,29 +144,13 @@
     const admins = new Set(['Mohamed','Zohra']);
 
     const weeks = Array.from({length:48}, (_,i)=>i+1);
-    const specificWeekDateRanges = {
-      1:{start:'2025-08-31',end:'2025-09-04'},2:{start:'2025-09-07',end:'2025-09-11'},3:{start:'2025-09-14',end:'2025-09-18'},
-      4:{start:'2025-09-21',end:'2025-09-25'},5:{start:'2025-09-28',end:'2025-10-02'},6:{start:'2025-10-05',end:'2025-10-09'},
-      7:{start:'2025-10-12',end:'2025-10-16'},8:{start:'2025-10-19',end:'2025-10-23'},9:{start:'2025-10-26',end:'2025-10-30'},
-      10:{start:'2025-11-02',end:'2025-11-06'},11:{start:'2025-11-09',end:'2025-11-13'},12:{start:'2025-11-16',end:'2025-11-20'},
-      13:{start:'2025-11-23',end:'2025-11-27'},14:{start:'2025-11-30',end:'2025-12-04'},15:{start:'2025-12-07',end:'2025-12-11'},
-      16:{start:'2025-12-14',end:'2025-12-18'},17:{start:'2025-12-21',end:'2025-12-25'},18:{start:'2025-12-28',end:'2026-01-01'},
-      19:{start:'2026-01-04',end:'2026-01-08'},20:{start:'2026-01-11',end:'2026-01-15'},21:{start:'2026-01-18',end:'2026-01-22'},
-      22:{start:'2026-01-25',end:'2026-01-29'},23:{start:'2026-02-01',end:'2026-02-05'},24:{start:'2026-02-08',end:'2026-02-12'},
-      25:{start:'2026-02-15',end:'2026-02-19'},26:{start:'2026-02-22',end:'2026-02-26'},27:{start:'2026-03-01',end:'2026-03-05'},
-      28:{start:'2026-03-08',end:'2026-03-12'},29:{start:'2026-03-15',end:'2026-03-19'},30:{start:'2026-03-22',end:'2026-03-26'},
-      31:{start:'2026-03-29',end:'2026-04-02'},32:{start:'2026-04-05',end:'2026-04-09'},33:{start:'2026-04-12',end:'2026-04-16'},
-      34:{start:'2026-04-19',end:'2026-04-23'},35:{start:'2026-04-26',end:'2026-04-30'},36:{start:'2026-05-03',end:'2026-05-07'},
-      37:{start:'2026-05-10',end:'2026-05-14'},38:{start:'2026-05-17',end:'2026-05-21'},39:{start:'2026-05-24',end:'2026-05-28'},
-      40:{start:'2026-05-31',end:'2026-06-04'},41:{start:'2026-06-07',end:'2026-06-11'},42:{start:'2026-06-14',end:'2026-06-18'},
-      43:{start:'2026-06-21',end:'2026-06-25'},44:{start:'2026-06-28',end:'2026-07-02'},45:{start:'2026-07-05',end:'2026-07-09'},
-      46:{start:'2026-07-12',end:'2026-07-16'},47:{start:'2026-07-19',end:'2026-07-23'},48:{start:'2026-07-26',end:'2026-07-30'}
-    };
-
     const classOrder = ['PEI1','PEI2','PEI3','PEI4','PEI5','DP1','DP2'];
     const findH = (target) => headers.find(h => h.trim().toLowerCase() === String(target).toLowerCase());
-
-    // —————————— UI HELPERS ——————————
+    function compareClasses(a,b){
+      const ia = classOrder.indexOf(a), ib = classOrder.indexOf(b);
+      if (ia!==-1 && ib!==-1) return ia-ib;
+      return String(a||'').localeCompare(String(b||''));
+    }
     function setBtnLoading(btn, loading, icon) {
       if (!btn) return;
       btn.disabled = loading;
@@ -161,10 +164,11 @@
       div.style.display = 'block';
       setTimeout(()=>{ div.style.display='none'; }, type==='error'?8000:5000);
     }
-    function compareClasses(a,b){
-      const ia = classOrder.indexOf(a), ib = classOrder.indexOf(b);
-      if (ia!==-1 && ib!==-1) return ia-ib;
-      return String(a).localeCompare(String(b));
+    function formatUpdatedAt(s){
+      if (!s) return '';
+      const d = new Date(s);
+      if (isNaN(d.getTime())) return '';
+      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
     }
 
     // —————————— LOGIN ——————————
@@ -200,16 +204,13 @@
         document.getElementById('loggedInUserInfo').textContent = `Connecté: ${loggedInUser}`;
         document.getElementById('main-title').textContent = `Plans Hebdomadaires - ${selectedSection[0].toUpperCase()+selectedSection.slice(1)}`;
 
-        // remplir liste semaines
         const weekSel = document.getElementById('weekSelector');
         weekSel.innerHTML = '<option value="">-- Sélectionnez une semaine --</option>';
         weeks.forEach(w => {
           const opt = document.createElement('option'); opt.value = w; opt.textContent = `Semaine ${w}`; weekSel.appendChild(opt);
         });
 
-        // admin UI
         document.getElementById('admin-actions').style.display = admins.has(loggedInUser) ? 'flex' : 'none';
-
         alertMsg(`Bienvenue ${loggedInUser}!`, 'success');
       } catch (e) {
         err.textContent = e.message;
@@ -235,28 +236,13 @@
 
       try {
         const r = await fetch(`/api/plans/${week}?section=${selectedSection}`);
-        const ct = (r.headers.get('content-type') || '').toLowerCase();
-        if (!ct.includes('application/json')) {
-          const txt = await r.text();
-          throw new Error(`Réponse non-JSON (status ${r.status}) : ${txt.slice(0,160)}`);
-        }
         const data = await r.json();
+        if (!r.ok) throw new Error(data.message || 'Erreur serveur.');
+
         planData = Array.isArray(data.planData) ? data.planData : [];
         weeklyClassNotes = data.classNotes || {};
-
-        // headers: nettoyer pour l’affichage
         headers = planData.length ? Object.keys(planData[0]).filter(h => h !== '_id' && h !== 'id') : [];
-        if (!headers.length) headers = ['Enseignant','Jour','Période','Classe','Matière','Leçon','Travaux de classe','Support','Devoirs'];
-
-        // dates semaine
-        const info = specificWeekDateRanges[week];
-        const f = d => {
-          const x = new Date(d+'T00:00:00Z');
-          const m = ['Janv','Fév','Mars','Avr','Mai','Juin','Juil','Août','Sept','Oct','Nov','Déc'];
-          const j = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-          return `${j[x.getUTCDay()]} ${String(x.getUTCDate()).padStart(2,'0')} ${m[x.getUTCMonth()]} ${x.getUTCFullYear()}`;
-        };
-        document.getElementById('weekDateRange').textContent = info ? `Semaine ${week} : du ${f(info.start)} à ${f(info.end)}` : `Semaine ${week}`;
+        if (!headers.length) headers = ['Enseignant','Jour','Période','Classe','Matière','Leçon','Travaux de classe','Support','Devoirs','updatedAt'];
 
         filteredData = planData.slice();
         renderTable();
@@ -273,20 +259,41 @@
       planData = []; filteredData = []; headers = []; weeklyClassNotes = {};
       document.querySelector('#planTable thead tr').innerHTML = '';
       document.querySelector('#planTable tbody').innerHTML =
-        '<tr><td colspan="10" style="text-align:center;padding:20px;color:#777">Veuillez sélectionner une semaine pour afficher les données.</td></tr>';
+        '<tr><td colspan="12" style="text-align:center;padding:20px;color:#777">Veuillez sélectionner une semaine pour afficher les données.</td></tr>';
       document.getElementById('generateWordBtn').disabled = true;
       document.getElementById('generateExcelBtn').disabled = true;
       document.getElementById('saveAllDisplayedBtn').disabled = true;
-      document.getElementById('weekDateRange').textContent = '';
       document.getElementById('notesClassSelector').innerHTML = '<option value="">-- Sélectionnez une classe --</option>';
       document.getElementById('notesInput').value = ''; document.getElementById('notesInput').disabled = true;
       document.getElementById('saveNotesBtn').disabled = true;
       document.getElementById('excelFileInput').value = '';
       document.getElementById('saveUploadedDataBtn').disabled = true;
       document.getElementById('file-upload-status').textContent = '';
+      document.getElementById('weekDateRange').textContent = '';
     }
 
-    // Rendu du tableau minimal + édition Leçon/Travaux/Support/Devoirs
+    // ——————— TRI ———————
+    function applySort(){
+      const key = document.getElementById('sortKey').value;
+      const order = document.getElementById('sortOrder').value;
+      const dir = order === 'desc' ? -1 : 1;
+
+      filteredData.sort((a,b) => {
+        const va = (a[key] ?? '').toString().trim();
+        const vb = (b[key] ?? '').toString().trim();
+        if (key === 'Classe') return dir * compareClasses(va, vb);
+        if (key === 'Période') return dir * ((parseInt(va,10)||0) - (parseInt(vb,10)||0));
+        if (key === 'updatedAt') return dir * (new Date(va) - new Date(vb));
+        return dir * va.localeCompare(vb, 'fr', { numeric:true, sensitivity:'base' });
+      });
+      renderTable(); // réafficher
+    }
+    function resetSort(){
+      filteredData = planData.slice();
+      renderTable();
+    }
+
+    // —————————— RENDU TABLEAU ——————————
     function renderTable(){
       const thead = document.querySelector('#planTable thead tr');
       const tbody = document.querySelector('#planTable tbody');
@@ -294,31 +301,42 @@
 
       const displayHeaders = [...new Set([
         'Enseignant','Jour','Période','Classe','Matière','Leçon','Travaux de classe','Support','Devoirs','updatedAt','__actions'
-      ])].filter(h => h !== 'updatedAt' || planData.some(r => r.updatedAt));
+      ])];
 
       displayHeaders.forEach(h => {
         const th = document.createElement('th');
-        th.textContent = (h === '__actions') ? 'Actions' : h;
-        if (h === 'updatedAt') th.textContent = 'Mis à jour';
+        th.textContent = (h === '__actions') ? 'Actions' : (h === 'updatedAt' ? 'Mis à jour' : h);
         thead.appendChild(th);
       });
 
       const editable = new Set(['Leçon','Travaux de classe','Support','Devoirs']);
 
-      filteredData.forEach((row, idx) => {
+      filteredData.forEach((row) => {
         const tr = document.createElement('tr');
 
         displayHeaders.forEach(h => {
           const td = document.createElement('td');
+
           if (h === '__actions') {
             td.className = 'actions-column';
-            const btn = document.createElement('button');
-            btn.className = 'save-row-button';
-            btn.innerHTML = '<i class="fas fa-check"></i>';
-            btn.addEventListener('click', async () => {
-              await saveRow(row, tr);
-            });
-            td.appendChild(btn);
+            // bouton SAVE
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'save-row-button';
+            saveBtn.title = 'Enregistrer cette ligne';
+            saveBtn.innerHTML = '<i class="fas fa-check"></i>';
+            saveBtn.addEventListener('click', async () => { await saveRow(row, tr); });
+
+            // bouton IA
+            const aiBtn = document.createElement('button');
+            aiBtn.className = 'save-row-button';
+            aiBtn.title = 'Proposer un plan de leçon (IA)';
+            aiBtn.style.color = '#0d6efd';
+            aiBtn.style.marginLeft = '8px';
+            aiBtn.innerHTML = '<i class="fas fa-robot"></i>';
+            aiBtn.addEventListener('click', async () => { await askAIForRow(row, tr, aiBtn); });
+
+            td.appendChild(saveBtn);
+            td.appendChild(aiBtn);
           } else if (editable.has(h)) {
             td.className = 'editable';
             td.contentEditable = true;
@@ -333,22 +351,19 @@
           } else {
             td.textContent = row[h] ?? '';
           }
+
           tr.appendChild(td);
         });
 
         tbody.appendChild(tr);
       });
-    }
 
-    function formatUpdatedAt(s){
-      if (!s) return '';
-      const d = new Date(s);
-      if (isNaN(d.getTime())) return '';
-      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      // activer / désactiver actions globales
+      updateActionButtonsState(filteredData.length>0);
     }
 
     async function saveRow(rowData, trEl){
-      const btn = trEl.querySelector('.save-row-button');
+      const btn = trEl.querySelector('.save-row-button'); // le premier (✓)
       setBtnLoading(btn, true, 'fas fa-check');
       try{
         const r = await fetch('/api/save-row', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ week: currentWeek, data: rowData, section: selectedSection }) });
@@ -362,6 +377,52 @@
         alertMsg(`Erreur enregistrement: ${e.message}`, 'error');
       } finally {
         setBtnLoading(btn, false, 'fas fa-check');
+      }
+    }
+
+    // —————————— IA PAR LIGNE ——————————
+    async function askAIForRow(row, trEl, aiBtn){
+      setBtnLoading(aiBtn, true, 'fas fa-robot');
+      try {
+        const r = await fetch('/api/generate-ai-lesson-plan', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ row, locale: 'fr' })
+        });
+        const j = await r.json();
+        if (!r.ok || !j.ok) throw new Error(j.message || 'Échec IA.');
+
+        // injecter les champs proposés
+        const s = j.suggestion || {};
+        ['Leçon','Travaux de classe','Support','Devoirs'].forEach(k => {
+          if (s[k]) row[k] = s[k];
+        });
+
+        // rafraîchir la rangée (simplement ré-écrire les cellules)
+        const cells = trEl.querySelectorAll('td');
+        const mapIndex = {
+          'Leçon': displayIndex('Leçon'),
+          'Travaux de classe': displayIndex('Travaux de classe'),
+          'Support': displayIndex('Support'),
+          'Devoirs': displayIndex('Devoirs')
+        };
+        Object.entries(mapIndex).forEach(([k, idx]) => {
+          if (idx !== -1 && cells[idx]) {
+            cells[idx].textContent = row[k] || '';
+          }
+        });
+
+        trEl.classList.add('modified');
+        alertMsg('Suggestion IA appliquée. Cliquez sur ✓ pour enregistrer.', 'success');
+      } catch (e) {
+        alertMsg(e.message, 'error');
+      } finally {
+        setBtnLoading(aiBtn, false, 'fas fa-robot');
+      }
+
+      function displayIndex(key){
+        const order = ['Enseignant','Jour','Période','Classe','Matière','Leçon','Travaux de classe','Support','Devoirs','updatedAt','__actions'];
+        return order.indexOf(key);
       }
     }
 
@@ -383,7 +444,7 @@
       await loadPlanForWeek();
     }
 
-    // Upload Excel → activer bouton + sauvegarder DB
+    // Upload Excel
     function handleFileUpload(e){
       const file = e.target.files[0];
       const status = document.getElementById('file-upload-status');
@@ -484,7 +545,6 @@
       classes.forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
       txt.value=''; txt.disabled=true; btn.disabled=true;
     }
-
     function displayClassNotes(){
       const sel = document.getElementById('notesClassSelector');
       const txt = document.getElementById('notesInput');
@@ -494,23 +554,6 @@
       txt.value = weeklyClassNotes[c] || '';
       txt.disabled=false; btn.disabled=false;
       document.getElementById('notes-save-status').textContent='';
-    }
-
-    async function saveNotes(){
-      const c = document.getElementById('notesClassSelector').value;
-      if (!c || !currentWeek) return;
-      setBtnLoading(document.getElementById('saveNotesBtn'), true, 'fas fa-save');
-      try{
-        const r = await fetch('/api/save-notes', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ week: currentWeek, classe: c, notes: document.getElementById('notesInput').value, section: selectedSection }) });
-        const j = await r.json();
-        if (!r.ok) throw new Error(j.message || 'Erreur sauvegarde.');
-        weeklyClassNotes[c] = document.getElementById('notesInput').value;
-        alertMsg(`Notes enregistrées pour ${c}, S${currentWeek}.`, 'success');
-      }catch(e){
-        alertMsg(`Erreur d'enregistrement: ${e.message}`, 'error');
-      }finally{
-        setBtnLoading(document.getElementById('saveNotesBtn'), false, 'fas fa-save');
-      }
     }
 
     // Admin: classes pour rapport
@@ -526,23 +569,6 @@
         j.sort(compareClasses).forEach(c => { const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
       }catch(e){
         sel.innerHTML = '<option value="">Erreur chargement</option>';
-      }
-    }
-
-    async function generateFullReportByClass(){
-      const c = document.getElementById('adminReportClassSelector').value;
-      if (!c) { alertMsg('Veuillez sélectionner une classe.', 'error'); return; }
-      setBtnLoading(document.getElementById('generateFullReportBtn'), true, 'fas fa-file-invoice');
-      try{
-        const r = await fetch('/api/full-report-by-class', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ classe: c, section: selectedSection }) });
-        if (!r.ok) { const j = await r.json(); throw new Error(j.message || 'Erreur'); }
-        const blob = await r.blob();
-        saveAs(blob, `Rapport_Complet_${selectedSection}_${c}.xlsx`);
-        alertMsg(`Rapport complet généré pour ${c}.`, 'success');
-      }catch(e){
-        alertMsg(e.message, 'error');
-      }finally{
-        setBtnLoading(document.getElementById('generateFullReportBtn'), false, 'fas fa-file-invoice');
       }
     }
 
@@ -572,7 +598,9 @@
       document.getElementById('notesClassSelector').addEventListener('change', displayClassNotes);
       document.getElementById('saveNotesBtn').addEventListener('click', saveNotes);
 
-      // auto-remplissage si "remember me"
+      document.getElementById('applySortBtn').addEventListener('click', applySort);
+      document.getElementById('resetSortBtn').addEventListener('click', resetSort);
+
       const remembered = localStorage.getItem('rememberedUser');
       if (remembered){
         try{
