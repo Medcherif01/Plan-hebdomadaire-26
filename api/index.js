@@ -48,10 +48,12 @@ if (process.env.GEMINI_API_KEY) {
     try {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         geminiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-        console.log('✅ SDK Google Gemini initialisé.');
+        console.log('SDK Google Gemini initialise.');
     } catch (e) {
         console.error("Erreur initialisation Gemini:", e);
     }
+} else {
+    console.warn('GEMINI_API_KEY non defini - Fonctionnalites IA desactivees.');
 }
 
 // Dates des semaines
@@ -76,14 +78,14 @@ async function connectToDatabase() {
             await cachedDb.admin().ping();
             return cachedDb;
         } catch (error) {
-            console.log('Reconnexion MongoDB nécessaire...');
+            console.log('Reconnexion MongoDB necessaire...');
             cachedDb = null;
             mongoClient = null;
         }
     }
     
     if (!MONGO_URL) {
-        throw new Error('MONGO_URL non configurée');
+        throw new Error('MONGO_URL non configuree');
     }
     
     try {
@@ -96,11 +98,11 @@ async function connectToDatabase() {
         await mongoClient.connect();
         const db = mongoClient.db();
         cachedDb = db;
-        console.log('✅ Connexion MongoDB établie');
+        console.log('Connexion MongoDB etablie');
         return db;
     } catch (error) {
-        console.error('❌ Erreur connexion MongoDB:', error);
-        throw new Error('Connexion base de données échouée');
+        console.error('Erreur connexion MongoDB:', error);
+        throw new Error('Connexion base de donnees echouee');
     }
 }
 
@@ -108,7 +110,7 @@ async function connectToDatabase() {
 function formatDateFrenchNode(date) {
     if (!date || isNaN(date.getTime())) return "Date invalide";
     const days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-    const months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+    const months = ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"];
     const dayName = days[date.getUTCDay()];
     const dayNum = String(date.getUTCDate()).padStart(2, '0');
     const monthName = months[date.getUTCMonth()];
@@ -218,10 +220,10 @@ app.get('/api/plans/:week', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Erreur récupération plans:', error);
+        console.error('Erreur recuperation plans:', error);
         res.status(500).json({ 
             success: false,
-            message: 'Erreur lors de la récupération des plans' 
+            message: 'Erreur lors de la recuperation des plans' 
         });
     }
 });
@@ -234,7 +236,7 @@ app.post('/api/save-plan', async (req, res) => {
         if (!week || !data || !section) {
             return res.status(400).json({ 
                 success: false,
-                message: 'Semaine, données et section requises' 
+                message: 'Semaine, donnees et section requises' 
             });
         }
         
@@ -251,10 +253,10 @@ app.post('/api/save-plan', async (req, res) => {
             { upsert: true }
         );
         
-        console.log(`Plan sauvegardé pour S${week} ${section}`);
+        console.log(`Plan sauvegarde pour S${week} ${section}`);
         res.json({ 
             success: true,
-            message: `Plan enregistré pour la semaine ${week}` 
+            message: `Plan enregistre pour la semaine ${week}` 
         });
         
     } catch (error) {
@@ -274,7 +276,7 @@ app.post('/api/save-row', async (req, res) => {
         if (!week || !rowData || !section) {
             return res.status(400).json({ 
                 success: false,
-                message: 'Semaine, données et section requises' 
+                message: 'Semaine, donnees et section requises' 
             });
         }
         
@@ -293,8 +295,8 @@ app.post('/api/save-row', async (req, res) => {
             "elem.Enseignant": rowData[findKey(rowData, 'Enseignant')],
             "elem.Classe": rowData[findKey(rowData, 'Classe')],
             "elem.Jour": rowData[findKey(rowData, 'Jour')],
-            "elem.Période": rowData[findKey(rowData, 'Période')],
-            "elem.Matière": rowData[findKey(rowData, 'Matière')]
+            "elem.Periode": rowData[findKey(rowData, 'Periode')],
+            "elem.Matiere": rowData[findKey(rowData, 'Matiere')]
         }];
         
         const result = await db.collection('plans').updateOne(
@@ -306,13 +308,13 @@ app.post('/api/save-row', async (req, res) => {
         if (result.matchedCount > 0) {
             res.json({ 
                 success: true,
-                message: 'Ligne enregistrée avec succès', 
+                message: 'Ligne enregistree avec succes', 
                 updatedData: { updatedAt: now } 
             });
         } else {
             res.status(404).json({ 
                 success: false,
-                message: 'Ligne non trouvée pour la mise à jour' 
+                message: 'Ligne non trouvee pour la mise a jour' 
             });
         }
         
@@ -352,7 +354,7 @@ app.post('/api/save-notes', async (req, res) => {
         
         res.json({ 
             success: true,
-            message: 'Notes enregistrées avec succès' 
+            message: 'Notes enregistrees avec succes' 
         });
         
     } catch (error) {
@@ -388,10 +390,10 @@ app.get('/api/all-classes', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Erreur récupération classes:', error);
+        console.error('Erreur recuperation classes:', error);
         res.status(500).json({ 
             success: false,
-            message: 'Erreur lors de la récupération des classes' 
+            message: 'Erreur lors de la recuperation des classes' 
         });
     }
 });
@@ -404,14 +406,14 @@ app.post('/api/generate-word', async (req, res) => {
         if (!week || !classe || !data || !section) {
             return res.status(400).json({ 
                 success: false,
-                message: 'Données invalides pour la génération Word' 
+                message: 'Donnees invalides pour la generation Word' 
             });
         }
         
         if (!WORD_TEMPLATE_URL) {
             return res.status(500).json({ 
                 success: false,
-                message: 'Template Word non configuré' 
+                message: 'Template Word non configure' 
             });
         }
         
@@ -451,9 +453,9 @@ app.post('/api/generate-word', async (req, res) => {
         
         const sampleRow = data[0] || {};
         const jourKey = findKey(sampleRow, 'Jour');
-        const periodeKey = findKey(sampleRow, 'Période');
-        const matiereKey = findKey(sampleRow, 'Matière');
-        const leconKey = findKey(sampleRow, 'Leçon');
+        const periodeKey = findKey(sampleRow, 'Periode');
+        const matiereKey = findKey(sampleRow, 'Matiere');
+        const leconKey = findKey(sampleRow, 'Lecon');
         const travauxKey = findKey(sampleRow, 'Travaux de classe');
         const supportKey = findKey(sampleRow, 'Support');
         const devoirsKey = findKey(sampleRow, 'Devoirs');
@@ -495,7 +497,7 @@ app.post('/api/generate-word', async (req, res) => {
             const startD = new Date(datesNode.start + 'T00:00:00Z');
             const endD = new Date(datesNode.end + 'T00:00:00Z');
             if (!isNaN(startD.getTime()) && !isNaN(endD.getTime())) {
-                plageSemaineText = `du ${formatDateFrenchNode(startD)} à ${formatDateFrenchNode(endD)}`;
+                plageSemaineText = `du ${formatDateFrenchNode(startD)} a ${formatDateFrenchNode(endD)}`;
             }
         }
         
@@ -520,11 +522,11 @@ app.post('/api/generate-word', async (req, res) => {
         res.send(buf);
         
     } catch (error) {
-        console.error('Erreur génération Word:', error);
+        console.error('Erreur generation Word:', error);
         if (!res.headersSent) {
             res.status(500).json({ 
                 success: false,
-                message: 'Erreur lors de la génération Word' 
+                message: 'Erreur lors de la generation Word' 
             });
         }
     }
@@ -551,11 +553,11 @@ app.post('/api/generate-excel-workbook', async (req, res) => {
         if (!planDocument?.data?.length) {
             return res.status(404).json({ 
                 success: false,
-                message: 'Aucune donnée trouvée' 
+                message: 'Aucune donnee trouvee' 
             });
         }
         
-        const headers = ['Enseignant', 'Jour', 'Période', 'Classe', 'Matière', 'Leçon', 'Travaux de classe', 'Support', 'Devoirs'];
+        const headers = ['Enseignant', 'Jour', 'Periode', 'Classe', 'Matiere', 'Lecon', 'Travaux de classe', 'Support', 'Devoirs'];
         
         const formattedData = planDocument.data.map(item => {
             const row = {};
@@ -584,10 +586,10 @@ app.post('/api/generate-excel-workbook', async (req, res) => {
         res.send(buffer);
         
     } catch (error) {
-        console.error('Erreur génération Excel:', error);
+        console.error('Erreur generation Excel:', error);
         res.status(500).json({ 
             success: false,
-            message: 'Erreur lors de la génération Excel' 
+            message: 'Erreur lors de la generation Excel' 
         });
     }
 });
@@ -610,12 +612,12 @@ app.post('/api/full-report-by-class', async (req, res) => {
         if (!allPlans || allPlans.length === 0) {
             return res.status(404).json({ 
                 success: false,
-                message: 'Aucune donnée trouvée' 
+                message: 'Aucune donnee trouvee' 
             });
         }
         
         const dataBySubject = {};
-        const monthsFrench = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        const monthsFrench = ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"];
         
         allPlans.forEach(plan => {
             const weekNumber = plan.week;
@@ -633,7 +635,7 @@ app.post('/api/full-report-by-class', async (req, res) => {
             
             (plan.data || []).forEach(item => {
                 const itemClassKey = findKey(item, 'Classe');
-                const itemSubjectKey = findKey(item, 'Matière');
+                const itemSubjectKey = findKey(item, 'Matiere');
                 
                 if (itemClassKey && item[itemClassKey] === requestedClass && itemSubjectKey && item[itemSubjectKey]) {
                     const subject = item[itemSubjectKey];
@@ -642,8 +644,8 @@ app.post('/api/full-report-by-class', async (req, res) => {
                     const row = {
                         'Mois': monthName,
                         'Semaine': weekNumber,
-                        'Période': item[findKey(item, 'Période')] || '',
-                        'Leçon': item[findKey(item, 'Leçon')] || '',
+                        'Periode': item[findKey(item, 'Periode')] || '',
+                        'Lecon': item[findKey(item, 'Lecon')] || '',
                         'Travaux de classe': item[findKey(item, 'Travaux de classe')] || '',
                         'Support': item[findKey(item, 'Support')] || '',
                         'Devoirs': item[findKey(item, 'Devoirs')] || ''
@@ -657,12 +659,12 @@ app.post('/api/full-report-by-class', async (req, res) => {
         if (subjectsFound.length === 0) {
             return res.status(404).json({ 
                 success: false,
-                message: `Aucune donnée trouvée pour la classe '${requestedClass}'` 
+                message: `Aucune donnee trouvee pour la classe '${requestedClass}'` 
             });
         }
         
         const workbook = XLSX.utils.book_new();
-        const headers = ['Mois', 'Semaine', 'Période', 'Leçon', 'Travaux de classe', 'Support', 'Devoirs'];
+        const headers = ['Mois', 'Semaine', 'Periode', 'Lecon', 'Travaux de classe', 'Support', 'Devoirs'];
         
         subjectsFound.sort().forEach(subject => {
             const safeSheetName = subject.substring(0, 30).replace(/[*?:/\\\[\]]/g, '_');
@@ -687,7 +689,7 @@ app.post('/api/full-report-by-class', async (req, res) => {
         console.error('Erreur rapport complet:', error);
         res.status(500).json({ 
             success: false,
-            message: 'Erreur lors de la génération du rapport' 
+            message: 'Erreur lors de la generation du rapport' 
         });
     }
 });
@@ -698,13 +700,13 @@ app.post('/api/generate-ai-lesson-plan', async (req, res) => {
         if (!geminiModel) {
             return res.status(503).json({ 
                 success: false,
-                message: "Service IA non configuré" 
+                message: "Service IA non configure" 
             });
         }
         
         res.status(501).json({ 
             success: false,
-            message: "Fonctionnalité IA non implémentée" 
+            message: "Fonctionnalite IA non implementee" 
         });
     } catch (error) {
         res.status(500).json({ 
@@ -721,7 +723,7 @@ app.use(jsonErrorHandler);
 app.use((req, res) => {
     res.status(404).json({ 
         success: false,
-        message: 'Route non trouvée' 
+        message: 'Route non trouvee' 
     });
 });
 
@@ -732,6 +734,6 @@ module.exports = app;
 if (require.main === module) {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-        console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+        console.log(`Serveur demarre sur le port ${PORT}`);
     });
 }
