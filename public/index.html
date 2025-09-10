@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plans Hebdomadaires</title>
-    <!-- Dépendances CSS et JS (inchangées) -->
+    <!-- Dépendances CSS et JS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,30 +20,30 @@
     <!-- ======================== -->
     <div id="login-form">
         <img id="logo" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo Al-Kawthar">
-        <h1 id="login-title">Connexion</h1>
+        <h1 data-key="login_title">Connexion</h1>
         
         <div class="section-selector-container" style="width:100%; margin-bottom:15px;">
-            <label for="sectionSelectorLogin" id="label-section"><i class="fas fa-school"></i> Section :</label>
+            <label for="sectionSelectorLogin"><i class="fas fa-school"></i> <span data-key="section">Section</span> :</label>
             <select id="sectionSelectorLogin" style="width:100%; padding:10px; border:1px solid #dee2e6; border-radius:5px;">
-                <option id="option-garcons" value="garcons">Garçons</option>
-                <option id="option-filles" value="filles">Filles</option>
+                <option value="garcons" data-key="boys_section">Garçons</option>
+                <option value="filles" data-key="girls_section">Filles</option>
             </select>
         </div>
 
         <div>
-            <label for="username" id="label-username">Nom d'utilisateur (Enseignant) :</label>
+            <label for="username" data-key="login_username_label">Nom d'utilisateur (Enseignant) :</label>
             <input type="text" id="username" required>
         </div>
         <div class="password-container">
-            <label for="password" id="label-password">Mot de passe (idem Nom) :</label>
+            <label for="password" data-key="login_password_label">Mot de passe (idem Nom) :</label>
             <input type="password" id="password" required>
             <i class="fas fa-eye password-toggle-icon" id="togglePassword"></i>
         </div>
         <div class="remember-me-container">
             <input type="checkbox" id="rememberMe">
-            <label for="rememberMe" id="remember-me-label">Rester connecté</label>
+            <label for="rememberMe" data-key="remember_me">Rester connecté</label>
         </div>
-        <button id="login-button" class="pro-button"><i class="fas fa-sign-in-alt"></i> <span class="btn-text" id="login-btn-text">Se connecter</span></button>
+        <button id="login-button" class="pro-button"><i class="fas fa-sign-in-alt"></i> <span class="btn-text" data-key="login_button_text">Se connecter</span></button>
         <p id="login-error"></p>
     </div>
 
@@ -52,90 +52,91 @@
     <!-- ======================== -->
     <div id="main-content" style="display: none;">
 
+        <!-- En-tête principal (partagé) -->
         <div class="main-header-container">
             <img id="logo-main" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo">
             <div class="title-user-info">
-                <h1 id="main-title">Plans Hebdomadaires</h1>
+                <h1 id="main-title" data-key="main_page_title">Plans Hebdomadaires</h1>
                 <h2 id="weekDateRange"></h2>
                 <div class="user-actions-container">
                     <span id="loggedInUserInfo" style="font-style:italic;"></span>
                     <button id="logout-button" class="pro-button danger-button">
-                        <i class="fas fa-sign-out-alt"></i> <span class="btn-text" id="logout-btn-text">Déconnecter</span>
+                        <i class="fas fa-sign-out-alt"></i> <span class="btn-text" data-key="logout_button">Déconnecter</span>
                     </button>
                 </div>
             </div>
         </div>
         
+        <!-- Sélecteur de semaine (partagé) -->
         <div class="filter-container week-selector-container">
-            <label for="weekSelector" id="label-week"><i class="fas fa-calendar-week"></i> Semaine:</label>
+            <label for="weekSelector"><i class="fas fa-calendar-week"></i> <span data-key="week_label">Semaine:</span></label>
             <select id="weekSelector" onchange="loadPlanForWeek()"></select>
         </div>
 
         <div id="message-alerte" style="display: none;"></div>
         <div id="progress-bar-container" style="display: none;"><div id="progress-bar">0%</div></div>
 
-        <!-- Boucle sur les sections pour générer le HTML -->
-        <div id="section-container-wrapper">
-            <!-- Le JS insérera le bon template de section ici -->
-        </div>
+        <!-- Le HTML pour les deux sections sera généré dynamiquement par le script ci-dessous -->
+        <script>
+            const sections = ['garcons', 'filles'];
+            sections.forEach(section => {
+                const sectionTitle = section === 'garcons' ? 'Garçons' : 'Filles';
+                const sectionTitleKey = section === 'garcons' ? 'boys_section' : 'girls_section';
+                document.write(`
+                <div id="section-content-${section}" class="section-container" style="display: none;">
+                    <h2 data-key="${sectionTitleKey}">${sectionTitle}</h2>
+                    
+                    <div class="filter-container main-actions-container">
+                        <button id="generateWordBtn_${section}" class="action-button pro-button" disabled><i class="fas fa-file-word"></i> <span class="btn-text" data-key="generate_word_button">Générer Word par Classe</span></button>
+                        <button id="generateExcelBtn_${section}" class="action-button pro-button" disabled><i class="fas fa-file-excel"></i> <span class="btn-text" data-key="generate_excel_button">Générer Excel (1 Fichier)</span></button>
+                        <button id="saveAllDisplayedBtn_${section}" class="action-button pro-button" disabled><i class="fas fa-save"></i> <span class="btn-text" data-key="save_all_button">Enregistrer Lignes Affichées</span></button>
+                    </div>
 
+                    <div class="filter-container data-filters-container">
+                        <div class="filter-item" id="filter-item-enseignant-${section}">
+                           <label for="filterEnseignant_${section}"><i class="fas fa-user-tie"></i> <span data-key="filter_teacher_label">Enseignant:</span></label>
+                           <select id="filterEnseignant_${section}"> <option value="" data-key="all">Tous</option> </select>
+                        </div>
+                        <div class="filter-item">
+                           <label for="filterClasse_${section}"><i class="fas fa-chalkboard-user"></i> <span data-key="filter_class_label">Classe:</span></label>
+                           <select id="filterClasse_${section}"> <option value="" data-key="all_f">Toutes</option> </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="filterMatiere_${section}"><i class="fas fa-book"></i> <span data-key="filter_material_label">Matière:</span></label>
+                            <select id="filterMatiere_${section}"> <option value="" data-key="all_f">Toutes</option> </select>
+                        </div>
+                         <div class="filter-item">
+                           <label for="filterPeriode_${section}"><i class="fas fa-clock"></i> <span data-key="filter_period_label">Période:</span></label>
+                           <select id="filterPeriode_${section}"> <option value="" data-key="all_f">Toutes</option> </select>
+                        </div>
+                         <div class="filter-item">
+                           <label for="filterJour_${section}"><i class="fas fa-calendar-day"></i> <span data-key="filter_day_label">Jour:</span></label>
+                           <select id="filterJour_${section}">
+                                <option value="" data-key="all">Tous</option>
+                                <option value="Dimanche" data-key="day_sun">Dimanche</option>
+                                <option value="Lundi" data-key="day_mon">Lundi</option>
+                                <option value="Mardi" data-key="day_tue">Mardi</option>
+                                <option value="Mercredi" data-key="day_wed">Mercredi</option>
+                                <option value="Jeudi" data-key="day_thu">Jeudi</option>
+                           </select>
+                        </div>
+                    </div>
+
+                     <div class="notes-container">
+                        <label for="notesClassSelector_${section}"><i class="fas fa-sticky-note"></i> <span data-key="notes_for_class">Notes pour la classe :</span></label>
+                        <select id="notesClassSelector_${section}"><option value="" data-key="select_class">-- Sélectionnez une classe --</option></select>
+                        <textarea id="notesInput_${section}" rows="4" data-placeholder-key="select_class_placeholder" placeholder="Sélectionnez une classe..." spellcheck="true" disabled></textarea>
+                        <button id="saveNotesBtn_${section}" class="action-button pro-button success-button" disabled><i class="fas fa-save"></i> <span class="btn-text" data-key="save_notes_button">Enregistrer Notes</span></button>
+                    </div>
+
+                    <div class="table-responsive-wrapper">
+                        <table id="planTable_${section}"><thead><tr></tr></thead><tbody></tbody></table>
+                    </div>
+                </div>
+                `);
+            });
+        </script>
     </div>
-
-    <!-- TEMPLATES HTML POUR LES SECTIONS (cachés) -->
-    <template id="section-template">
-        <div class="section-container">
-            <h2 class="section-title"></h2>
-            
-            <div class="filter-container main-actions-container">
-                <button id="generateWordBtn" class="action-button pro-button" disabled><i class="fas fa-file-word"></i> <span class="btn-text" data-translate="generate_word_button">Générer Word par Classe</span></button>
-                <button id="generateExcelBtn" class="action-button pro-button" disabled><i class="fas fa-file-excel"></i> <span class="btn-text" data-translate="generate_excel_button">Générer Excel (1 Fichier)</span></button>
-                <button id="saveAllDisplayedBtn" class="action-button pro-button" disabled><i class="fas fa-save"></i> <span class="btn-text" data-translate="save_all_button">Enregistrer Lignes Affichées</span></button>
-            </div>
-
-            <div class="filter-container data-filters-container">
-                <div class="filter-item" id="teacher-filter-container">
-                    <label data-translate="filter_teacher_label"><i class="fas fa-user-tie"></i> Enseignant:</label> 
-                    <select id="filterEnseignant"> <option value="">Tous</option> </select>
-                </div>
-                <div class="filter-item">
-                    <label data-translate="filter_class_label"><i class="fas fa-chalkboard-user"></i> Classe:</label> 
-                    <select id="filterClasse"> <option value="">Toutes</option> </select>
-                </div>
-                <div class="filter-item">
-                    <label data-translate="filter_material_label"><i class="fas fa-book"></i> Matière:</label> 
-                    <select id="filterMatiere"> <option value="">Toutes</option> </select>
-                </div>
-                <div class="filter-item">
-                    <label data-translate="filter_period_label"><i class="fas fa-clock"></i> Période:</label> 
-                    <select id="filterPeriode"> <option value="">Toutes</option> </select>
-                </div>
-                <div class="filter-item">
-                    <label data-translate="filter_day_label"><i class="fas fa-calendar-day"></i> Jour:</label> 
-                    <select id="filterJour">
-                        <option value="" data-translate="all">Tous</option>
-                        <option value="Dimanche" data-translate="day_sun">Dimanche</option>
-                        <option value="Lundi" data-translate="day_mon">Lundi</option>
-                        <option value="Mardi" data-translate="day_tue">Mardi</option>
-                        <option value="Mercredi" data-translate="day_wed">Mercredi</option>
-                        <option value="Jeudi" data-translate="day_thu">Jeudi</option>
-                    </select>
-                </div>
-            </div>
-
-             <div class="notes-container">
-                <label data-translate="notes_for_class"><i class="fas fa-sticky-note"></i> Notes pour la classe :</label> 
-                <select id="notesClassSelector"><option value="" data-translate="select_class">-- Sélectionnez une classe --</option></select>
-                <textarea id="notesInput" rows="4" placeholder="Sélectionnez une classe..." spellcheck="true" disabled></textarea>
-                <button id="saveNotesBtn" class="action-button pro-button success-button" disabled><i class="fas fa-save"></i> <span class="btn-text" data-translate="save_notes_button">Enregistrer Notes</span></button>
-            </div>
-
-            <div class="table-responsive-wrapper">
-                <table id="planTable"><thead><tr></tr></thead><tbody></tbody></table>
-            </div>
-        </div>
-    </template>
-
-
     <script>
     // ====== GLOBALS ======
     let loggedInUser = null;
@@ -623,3 +624,4 @@
     </script>
 </body>
 </html>
+
