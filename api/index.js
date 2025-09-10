@@ -59,8 +59,8 @@ const specificWeekDateRangesNode = {
 // ===== MODIFICATION : Remplacement de validUsers par un objet structuré =====
 const users = {
     // Admins
-    "Mohamed":    { password: "MohamedPassword2025", role: "Admin" },
-    "Zohra":      { password: "ZohraPassword2025",   role: "Admin" },
+    "Mohamed":    { password: "Mohamed", role: "Admin" },
+    "Zohra":      { password: "Zohra",   role: "Admin" },
     // Utilisateurs
     "Abeer":      { password: "Abeer",      role: "User" },
     "Aichetou":   { password: "Aichetou",   role: "User" },
@@ -245,4 +245,5 @@ app.post('/api/generate-ai-lesson-plan', async (req, res) => { /* ... Logique de
 
 // Exporter l'app pour Vercel
 module.exports = app;
+
 
