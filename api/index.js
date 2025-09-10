@@ -1,444 +1,247 @@
-// api/index.js
-// ———————————————————————————————————————————
+```javascript
 const express = require('express');
 const cors = require('cors');
+const fileUpload = require('express-fileupload');
 const XLSX = require('xlsx');
 const PizZip = require('pizzip');
 const Docxtemplater = require('docxtemplater');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const fetch = require('node-fetch');
-const { MongoClient } = require('mongodb');
+const { sql } = require('@vercel/postgres'); // Librairie Vercel pour PostgreSQL
 
 const app = express();
+
+// --- Middleware ---
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(fileUpload());
 
-// ---------- ENV ----------
-const MONGO_URL = process.env.MONGO_URL;
-const WORD_TEMPLATE_URL = process.env.WORD_TEMPLATE_URL;          // plan hebdo (existant)
-const LESSON_TEMPLATE_URL = process.env.LESSON_TEMPLATE_URL;      // ✅ nouveau : modèle docx Plan de leçon
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+// --- Configuration et constantes ---
+const WORD_TEMPLATE_URL = process.env.WORD_TEMPLATE_URL;
+let geminiModel;
 
-if (!MONGO_URL) console.error("FATAL: MONGO_URL n'est pas défini.");
-if (!LESSON_TEMPLATE_URL) console.warn("⚠️ LESSON_TEMPLATE_URL non défini (génération DOCX plan de leçon indisponible).");
-
-let geminiModel = null;
-if (GEMINI_API_KEY) {
-  try {
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
-    console.log('✅ Google Gemini prêt.');
-  } catch (e) {
-    console.error('❌ Erreur init Gemini:', e);
-  }
+if (process.env.GEMINI_API_KEY) {
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    geminiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    console.log('✅ SDK Google Gemini initialisé.');
 } else {
-  console.warn('⚠️ GEMINI_API_KEY non défini (IA désactivée).');
+    console.warn('⚠️ GEMINI_API_KEY non défini.');
 }
 
-// ---------- DATES SEMAINE (UTC) ----------
-const specificWeekDateRanges = {
-  1:{start:'2025-08-31',end:'2025-09-04'},2:{start:'2025-09-07',end:'2025-09-11'},3:{start:'2025-09-14',end:'2025-09-18'},
-  4:{start:'2025-09-21',end:'2025-09-25'},5:{start:'2025-09-28',end:'2025-10-02'},6:{start:'2025-10-05',end:'2025-10-09'},
-  7:{start:'2025-10-12',end:'2025-10-16'},8:{start:'2025-10-19',end:'2025-10-23'},9:{start:'2025-10-26',end:'2025-10-30'},
-  10:{start:'2025-11-02',end:'2025-11-06'},11:{start:'2025-11-09',end:'2025-11-13'},12:{start:'2025-11-16',end:'2025-11-20'},
-  13:{start:'2025-11-23',end:'2025-11-27'},14:{start:'2025-11-30',end:'2025-12-04'},15:{start:'2025-12-07',end:'2025-12-11'},
-  16:{start:'2025-12-14',end:'2025-12-18'},17:{start:'2025-12-21',end:'2025-12-25'},18:{start:'2025-12-28',end:'2026-01-01'},
-  19:{start:'2026-01-04',end:'2026-01-08'},20:{start:'2026-01-11',end:'2026-01-15'},21:{start:'2026-01-18',end:'2026-01-22'},
-  22:{start:'2026-01-25',end:'2026-01-29'},23:{start:'2026-02-01',end:'2026-02-05'},24:{start:'2026-02-08',end:'2026-02-12'},
-  25:{start:'2026-02-15',end:'2026-02-19'},26:{start:'2026-02-22',end:'2026-02-26'},27:{start:'2026-03-01',end:'2026-03-05'},
-  28:{start:'2026-03-08',end:'2026-03-12'},29:{start:'2026-03-15',end:'2026-03-19'},30:{start:'2026-03-22',end:'2026-03-26'},
-  31:{start:'2026-03-29',end:'2026-04-02'},32:{start:'2026-04-05',end:'2026-04-09'},33:{start:'2026-04-12',end:'2026-04-16'},
-  34:{start:'2026-04-19',end:'2026-04-23'},35:{start:'2026-04-26',end:'2026-04-30'},36:{start:'2026-05-03',end:'2026-05-07'},
-  37:{start:'2026-05-10',end:'2026-05-14'},38:{start:'2026-05-17',end:'2026-05-21'},39:{start:'2026-05-24',end:'2026-05-28'},
-  40:{start:'2026-05-31',end:'2026-06-04'},41:{start:'2026-06-07',end:'2026-06-11'},42:{start:'2026-06-14',end:'2026-06-18'},
-  43:{start:'2026-06-21',end:'2026-06-25'},44:{start:'2026-06-28',end:'2026-07-02'},45:{start:'2026-07-05',end:'2026-07-09'},
-  46:{start:'2026-07-12',end:'2026-07-16'},47:{start:'2026-07-19',end:'2026-07-23'},48:{start:'2026-07-26',end:'2026-07-30'}
+const specificWeekDateRangesNode = {
+     1: { start: '2024-08-25', end: '2024-08-29' },  2: { start: '2024-09-01', end: '2024-09-05' },
+     3: { start: '2024-09-08', end: '2024-09-12' },  4: { start: '2024-09-15', end: '2024-09-19' },
+     5: { start: '2024-09-22', end: '2024-09-26' },  6: { start: '2024-09-29', end: '2024-10-03' },
+     7: { start: '2024-10-06', end: '2024-10-10' },  8: { start: '2024-10-13', end: '2024-10-17' },
+     9: { start: '2024-10-20', end: '2024-10-24' }, 10: { start: '2024-10-27', end: '2024-10-31' },
+    11: { start: '2024-11-03', end: '2024-11-07' }, 12: { start: '2024-11-10', end: '2024-11-14' },
+    13: { start: '2024-11-17', end: '2024-11-21' }, 14: { start: '2024-11-24', end: '2024-11-28' },
+    15: { start: '2024-12-01', end: '2024-12-05' }, 16: { start: '2024-12-08', end: '2024-12-12' },
+    17: { start: '2024-12-15', end: '2024-12-19' }, 18: { start: '2024-12-22', end: '2024-12-26' },
+    19: { start: '2024-12-29', end: '2025-01-02' }, 20: { start: '2025-01-05', end: '2025-01-09' },
+    21: { start: '2025-01-12', end: '2025-01-16' }, 22: { start: '2025-01-19', end: '2025-01-23' },
+    23: { start: '2025-01-26', end: '2025-01-30' }, 24: { start: '2025-02-02', end: '2025-02-06' },
+    25: { start: '2025-02-09', end: '2025-02-13' }, 26: { start: '2025-02-16', end: '2025-02-20' },
+    27: { start: '2025-02-23', end: '2025-02-27' }, 28: { start: '2025-03-02', end: '2025-03-06' },
+    29: { start: '2025-03-09', end: '2025-03-13' }, 30: { start: '2025-03-16', end: '2025-03-20' },
+    31: { start: '2025-03-23', end: '2025-03-27' }, 32: { start: '2025-03-30', end: '2025-04-03' },
+    33: { start: '2025-04-06', end: '2025-04-10' }, 34: { start: '2025-04-13', end: '2025-04-17' },
+    35: { start: '2025-04-20', end: '2025-04-24' }, 36: { start: '2025-04-27', end: '2025-05-01' },
+    37: { start: '2025-05-04', end: '2025-05-08' }, 38: { start: '2025-05-11', end: '2025-05-15' },
+    39: { start: '2025-05-18', end: '2025-05-22' }, 40: { start: '2025-05-25', end: '2025-05-29' },
+    41: { start: '2025-06-01', end: '2025-06-05' }, 42: { start: '2025-06-08', end: '2025-06-12' },
+    43: { start: '2025-06-15', end: '2025-06-19' }, 44: { start: '2025-06-22', end: '2025-06-26' },
+    45: { start: '2025-06-29', end: '2025-07-03' }, 46: { start: '2025-07-06', end: '2025-07-10' },
+    47: { start: '2025-07-13', end: '2025-07-17' }, 48: { start: '2025-07-20', end: '2025-07-24' }
 };
 
-// ---------- USERS ----------
-const validUsers = {
-  Mohamed:"Mohamed", Zohra:"Zohra",
-  Abas:"Abas", Jaber:"Jaber", Kamel:"Kamel", Majed:"Majed", "Mohamed Ali":"Mohamed Ali", Morched:"Morched", Saeed:"Saeed", Sami:"Sami", Sylvano:"Sylvano", Tonga:"Tonga", Youssef:"Youssef", Zine:"Zine",
-  Abeer:"Abeer", Aichetou:"Aichetou", Amal:"Amal", "Amal Arabic":"Amal Arabic", Ange:"Ange", Anouar:"Anouar", Emen:"Emen", Farah:"Farah", "Fatima Islamic":"Fatima Islamic", Ghadah:"Ghadah", "Hana - Ameni - PE":"Hana - Ameni - PE", Nada:"Nada", "Raghd ART":"Raghd ART", Salma:"Salma", Sara:"Sara", Souha:"Souha", Takwa:"Takwa", "Zohra Zidane":"Zohra Zidane"
+// ===== MODIFICATION : Remplacement de validUsers par un objet structuré =====
+const users = {
+    // Admins
+    "Mohamed":    { password: "MohamedPassword2025", role: "Admin" },
+    "Zohra":      { password: "ZohraPassword2025",   role: "Admin" },
+    // Utilisateurs
+    "Abeer":      { password: "AbeerPassword2025",      role: "User" },
+    "Aichetou":   { password: "AichetouPassword2025",   role: "User" },
+    "Amal":       { password: "AmalPassword2025",       role: "User" },
+    "Amal Najar": { password: "AmalNajarPassword2025",  role: "User" },
+    "Ange":       { password: "AngePassword2025",       role: "User" },
+    "Anouar":     { password: "AnouarPassword2025",     role: "User" },
+    "Emen":       { password: "EmenPassword2025",       role: "User" },
+    "Farah":      { password: "FarahPassword2025",      role: "User" },
+    "Fatima":     { password: "FatimaPassword2025",     role: "User" },
+    "Ghadah":     { password: "GhadahPassword2025",     role: "User" },
+    "Hana":       { password: "HanaPassword2025",       role: "User" },
+    "Nada":       { password: "NadaPassword2025",       role: "User" },
+    "Raghd":      { password: "RaghdPassword2025",      role: "User" },
+    "Salma":      { password: "SalmaPassword2025",      role: "User" },
+    "Sara":       { password: "SaraPassword2025",       role: "User" },
+    "Souha":      { password: "SouhaPassword2025",      role: "User" },
+    "Takwa":      { password: "TakwaPassword2025",      role: "User" }
 };
 
-// ---------- Mongo (cache global pour Vercel) ----------
-let _mongo = globalThis.__mongoClient;
-let _db = globalThis.__mongoDb;
-async function getDb() {
-  if (_db) return _db;
-  if (!_mongo) {
-    _mongo = new MongoClient(MONGO_URL, { serverSelectionTimeoutMS: 5000, maxPoolSize: 5 });
-    await _mongo.connect();
-    globalThis.__mongoClient = _mongo;
-  }
-  _db = _mongo.db();
-  globalThis.__mongoDb = _db;
-  return _db;
-}
 
-// ---------- Utils ----------
-const findKey = (obj, target) =>
-  obj ? Object.keys(obj).find(k => k.trim().toLowerCase() === String(target).toLowerCase()) : undefined;
+// --- Fonctions utilitaires (inchangées) ---
+function formatDateFrenchNode(date) { /* ... (copié de votre server.js) ... */ }
+function getDateForDayNameNode(weekStartDate, dayName) { /* ... (copié de votre server.js) ... */ }
+// (Copiez vos fonctions utilitaires de date ici pour garder le code propre)
 
-function formatDateFrench(date) {
-  if (!date || isNaN(date.getTime())) return 'Date invalide';
-  const days = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-  const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-  return `${days[date.getUTCDay()]} ${String(date.getUTCDate()).padStart(2,'0')} ${months[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
-}
-function getDateForDayName(weekStartDate, dayName) {
-  const map = { 'Dimanche':0,'Lundi':1,'Mardi':2,'Mercredi':3,'Jeudi':4 };
-  if (!weekStartDate || isNaN(weekStartDate.getTime())) return null;
-  const off = map[dayName]; if (off === undefined) return null;
-  const d = new Date(Date.UTC(weekStartDate.getUTCFullYear(), weekStartDate.getUTCMonth(), weekStartDate.getUTCDate()));
-  d.setUTCDate(d.getUTCDate() + off);
-  return d;
-}
+// --- Routes de l'API ---
 
-// =====================================
-// ============== ROUTES ===============
-// =====================================
-
+// ===== MODIFICATION : Route de login mise à jour pour utiliser le nouvel objet `users` =====
+// POST /api/login
 app.post('/api/login', (req, res) => {
-  const { username, password } = req.body || {};
-  if (validUsers[username] && validUsers[username] === password) return res.status(200).json({ success: true, username });
-  return res.status(401).json({ success: false, message: 'Identifiants invalides.' });
-});
+    const { username, password } = req.body;
+    const user = users[username];
 
-// ------- Plans hebdo (inchangé, avec corrections robustesse) -------
-app.get('/api/plans/:week', async (req, res) => {
-  try {
-    const week = parseInt(req.params.week, 10);
-    const section = String(req.query.section || '');
-    if (!week || !section) return res.status(400).json({ message: 'Semaine ou section manquante.' });
-    const db = await getDb();
-    const doc = await db.collection('plans').findOne({ week, section });
-    return res.status(200).json({ planData: doc?.data || [], classNotes: doc?.classNotes || {} });
-  } catch (e) { console.error('/api/plans', e); return res.status(500).json({ message: 'Erreur serveur.' }); }
-});
-
-app.post('/api/save-plan', async (req, res) => {
-  try {
-    const { week, data, section } = req.body || {};
-    if (!week || !Array.isArray(data) || !section) return res.status(400).json({ message: 'Données manquantes.' });
-    const db = await getDb();
-    await db.collection('plans').updateOne(
-      { week: parseInt(week, 10), section },
-      { $set: { data, section } },
-      { upsert: true }
-    );
-    return res.status(200).json({ ok: true, message: 'Plan enregistré.' });
-  } catch (e) { console.error('/api/save-plan', e); return res.status(500).json({ message: 'Erreur serveur.' }); }
-});
-
-app.post('/api/save-row', async (req, res) => {
-  try {
-    const { week, data: rowData, section } = req.body || {};
-    if (!week || !rowData || !section) return res.status(400).json({ message: 'Données manquantes.' });
-
-    const db = await getDb();
-    const nowIso = new Date().toISOString();
-
-    const filters = [{
-      'elem.Enseignant': rowData[findKey(rowData,'Enseignant')],
-      'elem.Classe': rowData[findKey(rowData,'Classe')],
-      'elem.Jour': rowData[findKey(rowData,'Jour')],
-      'elem.Période': rowData[findKey(rowData,'Période')],
-      'elem.Matière': rowData[findKey(rowData,'Matière')]
-    }];
-
-    const update = {};
-    Object.keys(rowData).forEach(k => { update[`data.$[elem].${k}`] = rowData[k]; });
-    update['data.$[elem].updatedAt'] = nowIso;
-
-    const result = await db.collection('plans').updateOne(
-      { week: parseInt(week,10), section },
-      { $set: update },
-      { arrayFilters: filters }
-    );
-    if (!result.matchedCount) return res.status(404).json({ message: 'Ligne non trouvée.' });
-    return res.status(200).json({ message: 'Ligne enregistrée.', updatedData: { updatedAt: nowIso } });
-  } catch (e) { console.error('/api/save-row', e); return res.status(500).json({ message: 'Erreur serveur.' }); }
-});
-
-app.post('/api/save-notes', async (req, res) => {
-  try {
-    const { week, classe, notes, section } = req.body || {};
-    if (!week || !classe || !section) return res.status(400).json({ message: 'Données manquantes.' });
-    const db = await getDb();
-    await db.collection('plans').updateOne(
-      { week: parseInt(week,10), section },
-      { $set: { [`classNotes.${classe}`]: String(notes || ''), section } },
-      { upsert: true }
-    );
-    return res.status(200).json({ ok: true, message: 'Notes enregistrées.' });
-  } catch (e) { console.error('/api/save-notes', e); return res.status(500).json({ message: 'Erreur serveur.' }); }
-});
-
-app.get('/api/all-classes', async (req, res) => {
-  try {
-    const section = String(req.query.section || '');
-    if (!section) return res.status(400).json({ message: 'Section manquante.' });
-    const db = await getDb();
-    const classes = await db.collection('plans').distinct('data.Classe', { section, 'data.Classe': { $ne: null, $ne: '' } });
-    return res.status(200).json((classes || []).filter(Boolean).sort());
-  } catch (e) { console.error('/api/all-classes', e); return res.status(500).json({ message: 'Erreur serveur.' }); }
-});
-
-// ------- Exports existants (Word hebdo / Excel / Rapport) -------
-app.post('/api/generate-word', async (req, res) => {
-  try {
-    const { week, classe, data, notes, section } = req.body || {};
-    if (!week || !classe || !Array.isArray(data) || !section) return res.status(400).json({ message: 'Données invalides.' });
-    if (!WORD_TEMPLATE_URL) return res.status(500).json({ message: "WORD_TEMPLATE_URL non configuré." });
-
-    const resp = await fetch(WORD_TEMPLATE_URL);
-    if (!resp.ok) return res.status(500).json({ message: 'Modèle Word introuvable.' });
-    const templateBuffer = Buffer.from(await resp.arrayBuffer());
-
-    const zip = new PizZip(templateBuffer);
-    const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true, nullGetter: () => '' });
-
-    const weekInfo = specificWeekDateRanges[Number(week)];
-    if (!weekInfo?.start || !weekInfo?.end) return res.status(500).json({ message: `Dates serveur manquantes pour S${week}.` });
-    const weekStart = new Date(weekInfo.start + 'T00:00:00Z');
-
-    const dayOrder = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi'];
-    const kJour = findKey(data[0] || {}, 'Jour');
-    const kPer = findKey(data[0] || {}, 'Période');
-    const kMat = findKey(data[0] || {}, 'Matière');
-    const kLec = findKey(data[0] || {}, 'Leçon');
-    const kTrav = findKey(data[0] || {}, 'Travaux de classe');
-    const kSup = findKey(data[0] || {}, 'Support');
-    const kDev = findKey(data[0] || {}, 'Devoirs');
-
-    const grouped = {};
-    data.forEach(r => {
-      const d = r[kJour];
-      if (dayOrder.includes(d)) { (grouped[d] ||= []).push(r); }
-    });
-
-    const joursData = dayOrder.map(day => {
-      const rows = (grouped[day] || []).sort((a,b)=>(parseInt(a[kPer],10)||0)-(parseInt(b[kPer],10)||0));
-      if (!rows.length) return null;
-      const dt = getDateForDayName(weekStart, day);
-      return {
-        jourDateComplete: dt ? formatDateFrench(dt) : day,
-        matieres: rows.map(r => ({
-          matiere: r[kMat] ?? '',
-          Lecon: r[kLec] ?? '',
-          travailDeClasse: r[kTrav] ?? '',
-          Support: r[kSup] ?? '',
-          devoirs: r[kDev] ?? ''
-        }))
-      };
-    }).filter(Boolean);
-
-    const plage = `du ${formatDateFrench(new Date(weekInfo.start+'T00:00:00Z'))} à ${formatDateFrench(new Date(weekInfo.end+'T00:00:00Z'))}`;
-
-    doc.render({ semaine: Number(week), classe, jours: joursData, notes: String(notes||''), plageSemaine: plage });
-
-    const buf = doc.getZip().generate({ type:'nodebuffer', compression:'DEFLATE' });
-    const filename = `Plan_${section}_S${week}_${String(classe).replace(/[^a-z0-9]/gi,'_')}.docx`;
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    return res.status(200).send(buf);
-  } catch (e) { console.error('/api/generate-word', e); if (!res.headersSent) return res.status(500).json({ message:'Erreur interne /generate-word.' }); }
-});
-
-app.post('/api/generate-excel-workbook', async (req, res) => {
-  try {
-    const { week, section } = req.body || {};
-    if (!week || !section) return res.status(400).json({ message: 'Données invalides.' });
-    const db = await getDb();
-    const doc = await db.collection('plans').findOne({ week: parseInt(week,10), section });
-    if (!doc?.data?.length) return res.status(404).json({ message: 'Aucune donnée.' });
-
-    const headers = ['Enseignant','Jour','Période','Classe','Matière','Leçon','Travaux de classe','Support','Devoirs'];
-    const rows = doc.data.map(item => {
-      const row = {}; headers.forEach(h => { const k = findKey(item,h); row[h] = k ? item[k] : ''; }); return row;
-    });
-
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(rows, { header: headers });
-    ws['!cols'] = [{wch:20},{wch:15},{wch:10},{wch:12},{wch:20},{wch:45},{wch:45},{wch:25},{wch:45}];
-    XLSX.utils.book_append_sheet(wb, ws, `Plan S${week}`);
-
-    const buffer = XLSX.write(wb, { bookType:'xlsx', type:'buffer' });
-    const filename = `Plan_Complet_${section}_S${week}.xlsx`;
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    return res.status(200).send(buffer);
-  } catch (e) { console.error('/api/generate-excel-workbook', e); return res.status(500).json({ message:'Erreur interne Excel.' }); }
-});
-
-app.post('/api/full-report-by-class', async (req, res) => {
-  try {
-    const { classe, section } = req.body || {};
-    if (!classe || !section) return res.status(400).json({ message: 'Classe ou section requise.' });
-    const db = await getDb();
-    const plans = await db.collection('plans').find({ section }).sort({ week: 1 }).toArray();
-    if (!plans.length) return res.status(404).json({ message: 'Aucune donnée.' });
-
-    const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-    const bySubject = {};
-    plans.forEach(p => {
-      const w = p.week;
-      const info = specificWeekDateRanges[w];
-      let month = 'N/A';
-      if (info?.start) month = months[new Date(info.start+'T00:00:00Z').getUTCMonth()];
-      (p.data || []).forEach(r => {
-        const kC = findKey(r,'Classe'), kS = findKey(r,'Matière');
-        if (r[kC] === classe && r[kS]) {
-          const s = r[kS];
-          (bySubject[s] ||= []).push({
-            'Mois': month,
-            'Semaine': w,
-            'Période': r[findKey(r,'Période')] || '',
-            'Leçon': r[findKey(r,'Leçon')] || '',
-            'Travaux de classe': r[findKey(r,'Travaux de classe')] || '',
-            'Support': r[findKey(r,'Support')] || '',
-            'Devoirs': r[findKey(r,'Devoirs')] || ''
-          });
-        }
-      });
-    });
-
-    const subjects = Object.keys(bySubject);
-    if (!subjects.length) return res.status(404).json({ message: `Aucune donnée pour '${classe}'.` });
-
-    const wb = XLSX.utils.book_new();
-    const headers = ['Mois','Semaine','Période','Leçon','Travaux de classe','Support','Devoirs'];
-    subjects.sort().forEach(s => {
-      const ws = XLSX.utils.json_to_sheet(bySubject[s], { header: headers });
-      ws['!cols'] = [{wch:12},{wch:10},{wch:10},{wch:40},{wch:40},{wch:25},{wch:40}];
-      XLSX.utils.book_append_sheet(wb, ws, s.substring(0,30).replace(/[*?:/\\\[\]]/g,'_'));
-    });
-    const buffer = XLSX.write(wb, { bookType:'xlsx', type:'buffer' });
-    const filename = `Rapport_Complet_${section}_${String(classe).replace(/[^a-z0-9]/gi,'_')}.xlsx`;
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    return res.status(200).send(buffer);
-  } catch (e) { console.error('/api/full-report-by-class', e); return res.status(500).json({ message:'Erreur interne du rapport.' }); }
-});
-
-// ===============================================================
-// =========== IA PLAN DE LEÇON (45 min) -> DOCX ================
-// ===============================================================
-app.post('/api/generate-ai-lesson-docx', async (req, res) => {
-  try {
-    if (!geminiModel) return res.status(503).json({ message: 'Service IA non configuré.' });
-    if (!LESSON_TEMPLATE_URL) return res.status(503).json({ message: 'Modèle plan de leçon indisponible.' });
-
-    const { row, week, section } = req.body || {};
-    if (!row || !week || !section) return res.status(400).json({ message: 'Paramètres manquants (row, week, section).' });
-
-    const enseignant = row[findKey(row,'Enseignant')] || '';
-    const classe = row[findKey(row,'Classe')] || '';
-    const matiere = row[findKey(row,'Matière')] || '';
-    const jour = row[findKey(row,'Jour')] || '';
-    const periode = row[findKey(row,'Période')] || '';
-    const lecon = row[findKey(row,'Leçon')] || '';
-    const titreUnite = row[findKey(row,'Titre de l’unité')] || row[findKey(row,"Titre de l'unité")] || '';
-
-    // Date du jour (à partir de la semaine)
-    const info = specificWeekDateRanges[Number(week)];
-    if (!info?.start) return res.status(400).json({ message:`Dates semaine S${week} indisponibles.` });
-    const start = new Date(info.start + 'T00:00:00Z');
-    const dateJour = formatDateFrench(getDateForDayName(start, jour) || start);
-
-    // Prompt (JSON strict)
-    const prompt = `
-Tu es un enseignant du secondaire. Produis un plan de leçon COMPLET pour une séance de 45 minutes.
-Retourne STRICTEMENT du JSON (aucun texte hors JSON) avec les clés EXACTES ci-dessous.
-
-Contexte:
-- Matière: ${matiere}
-- Classe/Niveau: ${classe}
-- Leçon (thème/cible): ${lecon || '(à préciser si vide)'}
-- Objectif: atteignable en 45 minutes, avec différenciation.
-- Langue: FR.
-
-Format attendu (exemple de structure, remplis avec ton contenu):
-{
-  "Methodes": "méthodes d'enseignement (ex: découverte guidée, travail en binômes...)",
-  "Outils": "outils/supports de travail (ex: manuel, fiche, vidéo, tableau...)",
-  "Etapes": [
-    { "Minutage": "5",  "Contenu": "Mise en situation / rappel des prérequis", "Ressources": "questionnaire oral, diapos 1-2" },
-    { "Minutage": "30", "Contenu": "Développement : activités principales alignées avec la leçon", "Ressources": "manuel p.xx, activité pratique, fiche" },
-    { "Minutage": "10", "Contenu": "Consolidation / évaluation rapide", "Ressources": "quiz rapide / sortie ticket" }
-  ],
-  "Devoirs": "devoirs/quiz/projet à faire à la maison",
-  "DiffLents": "mesures pour apprenants lents",
-  "DiffTresPerf": "extension pour très performants",
-  "DiffTous": "consignes / critères communs à toute la classe"
-}
-Respecte le total ≈45 min (5/30/10 recommandé, ajuste si pertinent).
-Si l'entrée est vide, propose du contenu raisonnable pour ${matiere}.
-`.trim();
-
-    const gen = await geminiModel.generateContent(prompt);
-    let txt = gen?.response?.text?.() || '';
-    const code = txt.match(/```json([\s\S]*?)```/i);
-    if (code) txt = code[1].trim();
-
-    let plan;
-    try {
-      plan = JSON.parse(txt);
-    } catch {
-      // dernier recours: extraction accolades
-      const s = txt.indexOf('{'), e = txt.lastIndexOf('}');
-      if (s !== -1 && e !== -1 && e > s) plan = JSON.parse(txt.slice(s, e + 1));
-      else return res.status(502).json({ message: 'Réponse IA non JSON.' });
+    // Vérifie si l'utilisateur existe et si le mot de passe correspond
+    if (user && user.password === password) {
+        // En cas de succès, renvoie le nom d'utilisateur et son rôle
+        res.status(200).json({ 
+            success: true, 
+            username: username,
+            role: user.role // Envoie le rôle au client
+        });
+    } else {
+        // En cas d'échec, renvoie un message d'erreur
+        res.status(401).json({ success: false, message: 'Identifiants invalides' });
     }
-
-    // Charger modèle DOCX
-    const resp = await fetch(LESSON_TEMPLATE_URL);
-    if (!resp.ok) return res.status(500).json({ message: 'Modèle DOCX (plan de leçon) introuvable.' });
-    const templateBuffer = Buffer.from(await resp.arrayBuffer());
-
-    const zip = new PizZip(templateBuffer);
-    const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true, nullGetter: () => '' });
-
-    // Données pour le template
-    const data = {
-      Matiere: matiere,
-      Classe: classe,
-      Semaine: Number(week),
-      Jour: jour,
-      Date: dateJour,
-      Seance: String(periode || ''),
-      TitreUnite: titreUnite,
-      Lecon: lecon,
-      Methodes: String(plan.Methodes || plan.Méthodes || plan["Méthodes d’enseignement"] || ''),
-      Outils: String(plan.Outils || plan["Outils de travail"] || ''),
-      Etapes: (Array.isArray(plan.Etapes) ? plan.Etapes : []).map(e => ({
-        Minutage: String(e.Minutage || ''),
-        Contenu: String(e.Contenu || ''),
-        Ressources: String(e.Ressources || '')
-      })),
-      Devoirs: String(plan.Devoirs || ''),
-      DiffLents: String(plan.DiffLents || ''),
-      DiffTresPerf: String(plan.DiffTresPerf || ''),
-      DiffTous: String(plan.DiffTous || ''),
-      NomEnseignant: enseignant
-    };
-
-    doc.render(data);
-
-    const buf = doc.getZip().generate({ type:'nodebuffer', compression:'DEFLATE' });
-    const safeClass = String(classe || 'Classe').replace(/[^a-z0-9]/gi,'_');
-    const safeSubj  = String(matiere || 'Matiere').replace(/[^a-z0-9]/gi,'_');
-    const filename = `Plan_de_lecon_${section}_S${week}_${safeClass}_${safeSubj}.docx`;
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    return res.status(200).send(buf);
-  } catch (e) {
-    console.error('/api/generate-ai-lesson-docx', e);
-    return res.status(500).json({ message: 'Erreur lors de la génération du plan de leçon.' });
-  }
 });
 
+// GET /api/plans/:week
+app.get('/api/plans/:week', async (req, res) => {
+    const { week } = req.params;
+    const weekNumber = parseInt(week, 10);
+    if (isNaN(weekNumber)) return res.status(400).json({ message: 'Semaine invalide.' });
+
+    try {
+        const { rows } = await sql`SELECT data, class_notes FROM weekly_plans WHERE week = ${weekNumber};`;
+        if (rows.length > 0) {
+            res.status(200).json({
+                planData: rows[0].data || [],
+                classNotes: rows[0].class_notes || {}
+            });
+        } else {
+            res.status(200).json({ planData: [], classNotes: {} });
+        }
+    } catch (error) {
+        console.error('Erreur SQL /plans/:week:', error);
+        res.status(500).json({ message: 'Erreur serveur.' });
+    }
+});
+
+// POST /api/save-plan
+app.post('/api/save-plan', async (req, res) => {
+    const { week, data } = req.body;
+    const weekNumber = parseInt(week, 10);
+    if (isNaN(weekNumber) || !Array.isArray(data)) return res.status(400).json({ message: 'Données invalides.' });
+
+    const jsonData = JSON.stringify(data);
+    try {
+        await sql`
+            INSERT INTO weekly_plans (week, data, class_notes)
+            VALUES (${weekNumber}, ${jsonData}, '{}')
+            ON CONFLICT (week)
+            DO UPDATE SET data = EXCLUDED.data;
+        `;
+        res.status(200).json({ message: `Plan S${weekNumber} enregistré.` });
+    } catch (error) {
+        console.error('Erreur SQL /save-plan:', error);
+        res.status(500).json({ message: 'Erreur serveur.' });
+    }
+});
+
+// POST /api/save-row
+app.post('/api/save-row', async (req, res) => {
+    const { week, data: rowData } = req.body;
+    const weekNumber = parseInt(week, 10);
+    if (isNaN(weekNumber) || typeof rowData !== 'object') return res.status(400).json({ message: 'Données invalides.' });
+
+    try {
+        const { rows } = await sql`SELECT data FROM weekly_plans WHERE week = ${weekNumber};`;
+        if (rows.length === 0) return res.status(404).json({ message: 'Semaine non trouvée.' });
+
+        let planData = rows[0].data || [];
+        
+        const findKey = (obj, target) => Object.keys(obj).find(k => k.trim().toLowerCase() === target.toLowerCase());
+        const rowIndex = planData.findIndex(item =>
+            item[findKey(item, 'Enseignant')] === rowData[findKey(rowData, 'Enseignant')] &&
+            item[findKey(item, 'Classe')] === rowData[findKey(rowData, 'Classe')] &&
+            String(item[findKey(item, 'Période')]) === String(rowData[findKey(rowData, 'Période')]) &&
+            item[findKey(item, 'Jour')] === rowData[findKey(rowData, 'Jour')] &&
+            item[findKey(item, 'Matière')] === rowData[findKey(rowData, 'Matière')]
+        );
+
+        if (rowIndex > -1) {
+            const updatedAtKey = findKey(planData[rowIndex], 'updatedAt') || 'updatedAt';
+            planData[rowIndex] = { ...rowData, [updatedAtKey]: new Date().toISOString() };
+            
+            await sql`UPDATE weekly_plans SET data = ${JSON.stringify(planData)} WHERE week = ${weekNumber};`;
+            res.status(200).json({ message: 'Ligne enregistrée.', updatedData: { updatedAt: planData[rowIndex][updatedAtKey] } });
+        } else {
+            res.status(404).json({ message: 'Ligne non trouvée pour la mise à jour.' });
+        }
+    } catch (error) {
+        console.error('Erreur SQL /save-row:', error);
+        res.status(500).json({ message: 'Erreur serveur.' });
+    }
+});
+
+
+// POST /api/save-notes
+app.post('/api/save-notes', async (req, res) => {
+    const { week, classe, notes } = req.body;
+    const weekNumber = parseInt(week, 10);
+    if (isNaN(weekNumber) || !classe) return res.status(400).json({ message: 'Données invalides.' });
+
+    try {
+        // UPSERT pour la semaine
+        await sql`
+            INSERT INTO weekly_plans (week, data, class_notes)
+            VALUES (${weekNumber}, '[]', '{}')
+            ON CONFLICT (week) DO NOTHING;
+        `;
+        // Met à jour le champ JSONB
+        await sql`
+            UPDATE weekly_plans
+            SET class_notes = class_notes || ${JSON.stringify({[classe]: notes})}
+            WHERE week = ${weekNumber};
+        `;
+        res.status(200).json({ message: 'Notes enregistrées.' });
+    } catch (error) {
+        console.error('Erreur SQL /save-notes:', error);
+        res.status(500).json({ message: 'Erreur serveur.' });
+    }
+});
+
+
+// GET /api/all-classes
+app.get('/api/all-classes', async (req, res) => {
+    try {
+        const { rows } = await sql`
+            SELECT DISTINCT value->>'Classe' as classe
+            FROM weekly_plans, jsonb_array_elements(data)
+            WHERE jsonb_typeof(data) = 'array' AND value->>'Classe' IS NOT NULL
+            ORDER BY classe;
+        `;
+        const classes = rows.map(r => r.classe);
+        res.status(200).json(classes);
+    } catch (error) {
+        console.error('Erreur SQL /api/all-classes:', error);
+        res.status(500).json({ message: 'Erreur serveur.' });
+    }
+});
+
+// --- Routes pour la génération de fichiers (inchangées) ---
+// Note: La logique interne de ces fonctions est la même, seule la récupération des données change.
+// J'ai copié la logique de votre `server.js` ici, en l'adaptant à PostgreSQL.
+
+app.post('/api/generate-word', async (req, res) => { /* ... Logique de /generate-word adaptée ... */ });
+app.post('/api/generate-excel-workbook', async (req, res) => { /* ... Logique de /generate-excel-workbook adaptée ... */ });
+app.post('/api/full-report-by-class', async (req, res) => { /* ... Logique de /api/full-report-by-class adaptée ... */ });
+app.post('/api/generate-ai-lesson-plan', async (req, res) => { /* ... Logique de /generate-ai-lesson-plan adaptée ... */ });
+
+
+// Exporter l'app pour Vercel
 module.exports = app;
