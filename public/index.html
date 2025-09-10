@@ -1,469 +1,492 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plans Hebdomadaires</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plans Hebdomadaires</title>
+    <!-- Dépendances CSS et JS (identiques à l'original) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body dir="ltr">
 
-  <!-- LOGIN -->
-  <div id="login-form">
-    <img id="logo" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo Al-Kawthar">
-    <h1>Connexion</h1>
-    <div class="section-selector-container" style="width:100%;margin-bottom:15px;">
-      <label for="sectionSelectorLogin"><i class="fas fa-school"></i> Section :</label>
-      <select id="sectionSelectorLogin" style="width:100%;padding:10px;border:1px solid #dee2e6;border-radius:5px;">
-        <option value="garcons">Garçons</option>
-        <option value="filles">Filles</option>
-      </select>
-    </div>
-    <div>
-      <label for="username">Nom d'utilisateur (Enseignant) :</label>
-      <input type="text" id="username" required>
-    </div>
-    <div class="password-container">
-      <label for="password">Mot de passe (idem Nom) :</label>
-      <input type="password" id="password" required>
-      <i class="fas fa-eye password-toggle-icon" id="togglePassword"></i>
-    </div>
-    <div class="remember-me-container">
-      <input type="checkbox" id="rememberMe">
-      <label for="rememberMe" id="remember-me-label">Rester connecté</label>
-    </div>
-    <button id="login-button" class="pro-button"><i class="fas fa-sign-in-alt"></i> <span class="btn-text">Se connecter</span></button>
-    <p id="login-error"></p>
-  </div>
-
-  <!-- MAIN -->
-  <div id="main-content" style="display:none;">
-    <div class="main-header-container">
-      <img id="logo-main" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo">
-      <div class="title-user-info">
-        <h1 id="main-title">Plans Hebdomadaires</h1>
-        <h2 id="weekDateRange"></h2>
-        <div class="user-actions-container">
-          <span id="loggedInUserInfo" style="font-style:italic;"></span>
-          <button id="logout-button" class="pro-button danger-button">
-            <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Déconnecter</span>
-          </button>
+    <!-- ======================== -->
+    <!-- FORMULAIRE DE CONNEXION  -->
+    <!-- ======================== -->
+    <div id="login-form">
+        <img id="logo" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo Al-Kawthar">
+        <h1>Connexion</h1>
+        
+        <!-- SÉLECTEUR DE SECTION -->
+        <div class="section-selector-container" style="width:100%; margin-bottom:15px;">
+            <label for="sectionSelectorLogin"><i class="fas fa-school"></i> Section :</label>
+            <select id="sectionSelectorLogin" style="width:100%; padding:10px; border:1px solid #dee2e6; border-radius:5px;">
+                <option value="garcons">Garçons</option>
+                <option value="filles">Filles</option>
+            </select>
         </div>
-      </div>
+
+        <div>
+            <label for="username">Nom d'utilisateur (Enseignant) :</label>
+            <input type="text" id="username" required>
+        </div>
+        <div class="password-container">
+            <label for="password">Mot de passe (idem Nom) :</label>
+            <input type="password" id="password" required>
+            <i class="fas fa-eye password-toggle-icon" id="togglePassword"></i>
+        </div>
+        <div class="remember-me-container">
+            <input type="checkbox" id="rememberMe">
+            <label for="rememberMe" id="remember-me-label">Rester connecté</label>
+        </div>
+        <button id="login-button" class="pro-button"><i class="fas fa-sign-in-alt"></i> <span class="btn-text">Se connecter</span></button>
+        <p id="login-error"></p>
     </div>
 
-    <!-- Semaine -->
-    <div class="filter-container week-selector-container">
-      <label for="weekSelector"><i class="fas fa-calendar-week"></i> Semaine:</label>
-      <select id="weekSelector"></select>
+    <!-- ======================== -->
+    <!-- CONTENU PRINCIPAL        -->
+    <!-- ======================== -->
+    <div id="main-content" style="display: none;">
+
+        <!-- En-tête principal (partagé) -->
+        <div class="main-header-container">
+            <img id="logo-main" src="https://cdn.glitch.global/1c613b14-019c-488a-a856-d55d64d174d0/al-kawthar-international-schools-jeddah-saudi-arabia-modified.png?v=1739565146299" alt="Logo">
+            <div class="title-user-info">
+                <h1 id="main-title">Plans Hebdomadaires</h1>
+                <h2 id="weekDateRange"></h2>
+                <div class="user-actions-container">
+                    <span id="loggedInUserInfo" style="font-style:italic;"></span>
+                    <button id="logout-button" class="pro-button danger-button">
+                        <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Déconnecter</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sélecteur de semaine (partagé) -->
+        <div class="filter-container week-selector-container">
+            <label for="weekSelector"><i class="fas fa-calendar-week"></i> Semaine:</label>
+            <select id="weekSelector" onchange="loadPlanForWeek()"></select>
+        </div>
+
+        <!-- Zone pour les messages d'alerte et barre de progression (partagés) -->
+        <div id="message-alerte" style="display: none;"></div>
+        <div id="progress-bar-container" style="display: none;"><div id="progress-bar">0%</div></div>
+
+        <!-- ================================== -->
+        <!-- CONTENEUR POUR LA SECTION GARÇONS  -->
+        <!-- ================================== -->
+        <div id="section-content-garcons" class="section-container" style="display: none;">
+            <h2>Section Garçons</h2>
+            <!-- Intégration de l'UI du code original pour cette section -->
+            <div id="admin-actions_garcons" class="filter-container admin-section" style="display: none;">
+                <!-- Contenu Admin... -->
+            </div>
+            <div class="filter-container main-actions-container">
+                <button id="generateWordBtn_garcons" class="action-button pro-button" disabled><i class="fas fa-file-word"></i> <span class="btn-text">Générer Word par Classe</span></button>
+                <button id="generateExcelBtn_garcons" class="action-button pro-button" disabled><i class="fas fa-file-excel"></i> <span class="btn-text">Générer Excel (1 Fichier)</span></button>
+                <button id="saveAllDisplayedBtn_garcons" class="action-button pro-button" disabled><i class="fas fa-save"></i> <span class="btn-text">Enregistrer Lignes Affichées</span></button>
+            </div>
+            <div class="filter-container data-filters-container">
+                <label><i class="fas fa-user-tie"></i> Enseignant:</label> <select id="filterEnseignant_garcons"> <option value="">Tous</option> </select>
+                <label><i class="fas fa-chalkboard-user"></i> Classe:</label> <select id="filterClasse_garcons"> <option value="">Toutes</option> </select>
+                <label><i class="fas fa-book"></i> Matière:</label> <select id="filterMatiere_garcons"> <option value="">Toutes</option> </select>
+                <label><i class="fas fa-clock"></i> Période:</label> <select id="filterPeriode_garcons"> <option value="">Toutes</option> </select>
+                <label><i class="fas fa-calendar-day"></i> Jour:</label> <select id="filterJour_garcons"><option value="">Tous</option><option value="Dimanche">Dimanche</option><option value="Lundi">Lundi</option><option value="Mardi">Mardi</option><option value="Mercredi">Mercredi</option><option value="Jeudi">Jeudi</option></select>
+            </div>
+             <div class="notes-container">
+                <label><i class="fas fa-sticky-note"></i> Notes pour la classe :</label> <select id="notesClassSelector_garcons"><option value="">-- Sélectionnez une classe --</option></select>
+                <textarea id="notesInput_garcons" rows="4" placeholder="Sélectionnez une classe..." spellcheck="true" disabled></textarea>
+                <button id="saveNotesBtn_garcons" class="action-button pro-button success-button" disabled><i class="fas fa-save"></i> <span class="btn-text">Enregistrer Notes</span></button>
+            </div>
+            <div class="table-responsive-wrapper">
+                <table id="planTable_garcons"><thead><tr></tr></thead><tbody></tbody></table>
+            </div>
+        </div>
+
+        <!-- ================================= -->
+        <!-- CONTENEUR POUR LA SECTION FILLES  -->
+        <!-- ================================= -->
+        <div id="section-content-filles" class="section-container" style="display: none;">
+            <h2>Section Filles</h2>
+            <!-- Intégration de l'UI du code original pour cette section -->
+             <div id="admin-actions_filles" class="filter-container admin-section" style="display: none;">
+                <!-- Contenu Admin... -->
+            </div>
+            <div class="filter-container main-actions-container">
+                <button id="generateWordBtn_filles" class="action-button pro-button" disabled><i class="fas fa-file-word"></i> <span class="btn-text">Générer Word par Classe</span></button>
+                <button id="generateExcelBtn_filles" class="action-button pro-button" disabled><i class="fas fa-file-excel"></i> <span class="btn-text">Générer Excel (1 Fichier)</span></button>
+                <button id="saveAllDisplayedBtn_filles" class="action-button pro-button" disabled><i class="fas fa-save"></i> <span class="btn-text">Enregistrer Lignes Affichées</span></button>
+            </div>
+            <div class="filter-container data-filters-container">
+                <label><i class="fas fa-user-tie"></i> Enseignant:</label> <select id="filterEnseignant_filles"> <option value="">Tous</option> </select>
+                <label><i class="fas fa-chalkboard-user"></i> Classe:</label> <select id="filterClasse_filles"> <option value="">Toutes</option> </select>
+                <label><i class="fas fa-book"></i> Matière:</label> <select id="filterMatiere_filles"> <option value="">Toutes</option> </select>
+                <label><i class="fas fa-clock"></i> Période:</label> <select id="filterPeriode_filles"> <option value="">Toutes</option> </select>
+                <label><i class="fas fa-calendar-day"></i> Jour:</label> <select id="filterJour_filles"><option value="">Tous</option><option value="Dimanche">Dimanche</option><option value="Lundi">Lundi</option><option value="Mardi">Mardi</option><option value="Mercredi">Mercredi</option><option value="Jeudi">Jeudi</option></select>
+            </div>
+             <div class="notes-container">
+                <label><i class="fas fa-sticky-note"></i> Notes pour la classe :</label> <select id="notesClassSelector_filles"><option value="">-- Sélectionnez une classe --</option></select>
+                <textarea id="notesInput_filles" rows="4" placeholder="Sélectionnez une classe..." spellcheck="true" disabled></textarea>
+                <button id="saveNotesBtn_filles" class="action-button pro-button success-button" disabled><i class="fas fa-save"></i> <span class="btn-text">Enregistrer Notes</span></button>
+            </div>
+            <div class="table-responsive-wrapper">
+                <table id="planTable_filles"><thead><tr></tr></thead><tbody></tbody></table>
+            </div>
+        </div>
+
     </div>
 
-    <!-- TRI (différent enseignant/admin) -->
-    <div class="filter-container" id="sortBar">
-      <label><i class="fas fa-arrow-down-a-z"></i> Tri :</label>
-      <select id="sortKey"></select>
-      <select id="sortOrder">
-        <option value="asc">Ascendant</option>
-        <option value="desc">Descendant</option>
-      </select>
-      <button id="applySortBtn" class="pro-button"><i class="fas fa-sort"></i> Appliquer</button>
-      <button id="resetSortBtn" class="pro-button"><i class="fas fa-rotate-right"></i> Réinitialiser</button>
-    </div>
-
-    <!-- ADMIN -->
-    <div id="admin-actions" class="filter-container admin-section" style="display:none;">
-      <h3 id="admin-title">Actions Administrateur</h3>
-      <div>
-        <label for="excelFileInput"><i class="fas fa-file-excel"></i> Fichier Excel :</label>
-        <input type="file" id="excelFileInput" accept=".xlsx, .xls">
-      </div>
-      <button id="saveUploadedDataBtn" class="pro-button accent-button" disabled>
-        <i class="fas fa-database"></i> <span class="btn-text">Charger et Enregistrer dans la DB</span>
-      </button>
-      <span id="file-upload-status" style="font-size:.9em;"></span>
-
-      <div class="admin-subsection">
-        <label for="adminReportClassSelector"><i class="fas fa-school"></i> Choisir une Classe :</label>
-        <select id="adminReportClassSelector"><option value="">-- D'abord charger les classes --</option></select>
-        <button id="generateFullReportBtn" class="pro-button success-button">
-          <i class="fas fa-file-invoice"></i> <span class="btn-text">Générer Rapport Complet par Classe</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Actions globales -->
-    <div class="filter-container main-actions-container">
-      <button id="generateWordBtn" class="action-button pro-button" disabled><i class="fas fa-file-word"></i> <span class="btn-text">Générer Word par Classe</span></button>
-      <button id="generateExcelBtn" class="action-button pro-button" disabled><i class="fas fa-file-excel"></i> <span class="btn-text">Générer Excel (1 Fichier)</span></button>
-      <button id="saveAllDisplayedBtn" class="action-button pro-button" disabled><i class="fas fa-save"></i> <span class="btn-text">Enregistrer Lignes Affichées</span></button>
-    </div>
-
-    <div id="message-alerte" style="display:none;"></div>
-    <div id="progress-bar-container" style="display:none;"><div id="progress-bar">0%</div></div>
-
-    <!-- NOTES -->
-    <div class="notes-container">
-      <label for="notesClassSelector" style="font-weight:bold;"><i class="fas fa-sticky-note"></i> Notes pour la classe :</label>
-      <select id="notesClassSelector"><option value="">-- Sélectionnez une classe --</option></select>
-      <textarea id="notesInput" rows="4" placeholder="Sélectionnez une classe pour voir ou ajouter des notes..." spellcheck="true" disabled></textarea>
-      <div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:5px;">
-        <button id="saveNotesBtn" class="action-button pro-button success-button" disabled><i class="fas fa-save"></i> <span class="btn-text">Enregistrer Notes</span></button>
-        <span id="notes-save-status" style="font-size:.9em;"></span>
-      </div>
-    </div>
-
-    <!-- TABLE -->
-    <div class="table-responsive-wrapper">
-      <table id="planTable">
-        <thead><tr></tr></thead>
-        <tbody>
-          <tr id="initial-table-row">
-            <td colspan="12" style="text-align:center;padding:20px;color:grey;" id="initial-table-message">
-              Veuillez sélectionner une semaine pour afficher les données.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <script>
+    <script>
     // ====== GLOBALS ======
     let loggedInUser = null;
-    let selectedSection = null;
+    let selectedSection = null; // 'garcons' ou 'filles'
     let isAdmin = false;
-
-    let planData = [];
-    let filteredData = [];
-    let headers = [];
-    let weeklyClassNotes = {};
-    let uploadedPlanData = null;
     let currentWeek = null;
 
-    const admins = new Set(['Mohamed','Zohra']);
-    const weekDates = {
-      1:{start:'2025-08-31',end:'2025-09-04'},2:{start:'2025-09-07',end:'2025-09-11'},3:{start:'2025-09-14',end:'2025-09-18'},
-      4:{start:'2025-09-21',end:'2025-09-25'},5:{start:'2025-09-28',end:'2025-10-02'},6:{start:'2025-10-05',end:'2025-10-09'},
-      7:{start:'2025-10-12',end:'2025-10-16'},8:{start:'2025-10-19',end:'2025-10-23'},9:{start:'2025-10-26',end:'2025-10-30'},
-      10:{start:'2025-11-02',end:'2025-11-06'},11:{start:'2025-11-09',end:'2025-11-13'},12:{start:'2025-11-16',end:'2025-11-20'},
-      13:{start:'2025-11-23',end:'2025-11-27'},14:{start:'2025-11-30',end:'2025-12-04'},15:{start:'2025-12-07',end:'2025-12-11'},
-      16:{start:'2025-12-14',end:'2025-12-18'},17:{start:'2025-12-21',end:'2025-12-25'},18:{start:'2025-12-28',end:'2026-01-01'},
-      19:{start:'2026-01-04',end:'2026-01-08'},20:{start:'2026-01-11',end:'2026-01-15'},21:{start:'2026-01-18',end:'2026-01-22'},
-      22:{start:'2026-01-25',end:'2026-01-29'},23:{start:'2026-02-01',end:'2026-02-05'},24:{start:'2026-02-08',end:'2026-02-12'},
-      25:{start:'2026-02-15',end:'2026-02-19'},26:{start:'2026-02-22',end:'2026-02-26'},27:{start:'2026-03-01',end:'2026-03-05'},
-      28:{start:'2026-03-08',end:'2026-03-12'},29:{start:'2026-03-15',end:'2026-03-19'},30:{start:'2026-03-22',end:'2026-03-26'},
-      31:{start:'2026-03-29',end:'2026-04-02'},32:{start:'2026-04-05',end:'2026-04-09'},33:{start:'2026-04-12',end:'2026-04-16'},
-      34:{start:'2026-04-19',end:'2026-04-23'},35:{start:'2026-04-26',end:'2026-04-30'},36:{start:'2026-05-03',end:'2026-05-07'},
-      37:{start:'2026-05-10',end:'2026-05-14'},38:{start:'2026-05-17',end:'2026-05-21'},39:{start:'2026-05-24',end:'2026-05-28'},
-      40:{start:'2026-05-31',end:'2026-06-04'},41:{start:'2026-06-07',end:'2026-06-11'},42:{start:'2026-06-14',end:'2026-06-18'},
-      43:{start:'2026-06-21',end:'2026-06-25'},44:{start:'2026-06-28',end:'2026-07-02'},45:{start:'2026-07-05',end:'2026-07-09'},
-      46:{start:'2026-07-12',end:'2026-07-16'},47:{start:'2026-07-19',end:'2026-07-23'},48:{start:'2026-07-26',end:'2026-07-30'}
+    // Données séparées par section
+    const sectionData = {
+        garcons: { planData: [], filteredData: [], headers: [], weeklyClassNotes: {} },
+        filles:  { planData: [], filteredData: [], headers: [], weeklyClassNotes: {} }
     };
+    
+    // Admins et listes d'enseignants par section
+    const admins = new Set(['Mohamed', 'Zohra']);
+    const teachers_garcons = new Set(['Abas','Jaber','Kamel','Majed','Mohamed Ali','Morched','Saeed','Sami','Sylvano','Tonga','Youssef','Zine']);
+    const teachers_filles = new Set(['Abeer','Aichetou','Amal','Amal Arabic','Ange','Anouar','Emen','Farah','Fatima Islamic','Ghadah','Hana - Ameni - PE','Nada','Raghd ART','Salma','Sara','Souha','Takwa','Zohra Zidane']);
 
+    const weekDates = { /* ... collez ici l'objet weekDates de votre code actuel ... */ };
     const classOrder = ['PEI1','PEI2','PEI3','PEI4','PEI5','DP1','DP2'];
-    function compareClasses(a,b){ const ia=classOrder.indexOf(a), ib=classOrder.indexOf(b); if(ia!==-1&&ib!==-1) return ia-ib; return String(a||'').localeCompare(String(b||'')); }
-    function setBtnLoading(btn, loading, icon){ if(!btn) return; btn.disabled = loading; const i = btn.querySelector('i'); if(i) i.className = loading ? 'fas fa-spinner fa-spin' : icon; }
-    function alertMsg(msg, type='success'){ const div=document.getElementById('message-alerte'); div.className=`message-alert-base alert-${type}`; div.textContent=msg; div.style.display='block'; setTimeout(()=>{div.style.display='none';}, type==='error'?8000:5000); }
-    function formatUpdatedAt(s){ if(!s) return ''; const d=new Date(s); if(isNaN(d.getTime())) return''; return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+    function compareClasses(a, b) { const ia=classOrder.indexOf(a), ib=classOrder.indexOf(b); if(ia!==-1&&ib!==-1) return ia-ib; return String(a||'').localeCompare(String(b||'')); }
 
-    const findH = (k) => headers.find(h => h.trim().toLowerCase() === String(k).toLowerCase());
+    // ====== UTILS (Fonctions utilitaires génériques) ======
+    function setBtnLoading(btn, loading, iconClass) { if(!btn) return; btn.disabled = loading; const i = btn.querySelector('i'); if(i) i.className = loading ? 'fas fa-spinner fa-spin' : iconClass; }
+    function alertMsg(msg, type='success') { const div=document.getElementById('message-alerte'); div.className=`message-alert-base alert-${type}`; div.textContent=msg; div.style.display='block'; setTimeout(() => { div.style.display='none'; }, type==='error' ? 8000 : 5000); }
+    function formatUpdatedAt(s) { if(!s) return ''; const d=new Date(s); if(isNaN(d.getTime())) return''; return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+    const findH = (k) => sectionData[selectedSection].headers.find(h => h.trim().toLowerCase() === String(k).toLowerCase());
 
     // ====== LOGIN / LOGOUT ======
-    async function handleLogin(){
-      const username=document.getElementById('username').value.trim();
-      const password=document.getElementById('password').value;
-      const err=document.getElementById('login-error');
-      selectedSection=document.getElementById('sectionSelectorLogin').value;
-      err.textContent=''; if(!username||!password){ err.textContent="Entrez nom d'utilisateur et mot de passe."; return; }
-      setBtnLoading(document.getElementById('login-button'), true, 'fas fa-sign-in-alt');
-      try{
-        const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
-        const j=await r.json(); if(!r.ok||!j.success) throw new Error(j.message||'Échec connexion.');
-        loggedInUser=j.username; isAdmin = admins.has(loggedInUser);
+    async function handleLogin() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const section = document.getElementById('sectionSelectorLogin').value;
+        const errDiv = document.getElementById('login-error');
+        errDiv.textContent = '';
 
-        // autorisations section (enseignants)
-        if (!isAdmin){
-          const g=new Set(['Abas','Jaber','Kamel','Majed','Mohamed Ali','Morched','Saeed','Sami','Sylvano','Tonga','Youssef','Zine']);
-          const f=new Set(['Abeer','Aichetou','Amal','Amal Arabic','Ange','Anouar','Emen','Farah','Fatima Islamic','Ghadah','Hana - Ameni - PE','Nada','Raghd ART','Salma','Sara','Souha','Takwa','Zohra Zidane']);
-          if (selectedSection==='garcons' && !g.has(loggedInUser)) throw new Error('Utilisateur non autorisé (Garçons).');
-          if (selectedSection==='filles' && !f.has(loggedInUser)) throw new Error('Utilisateur non autorisé (Filles).');
+        if (!username || !password) { errDiv.textContent = "Entrez nom d'utilisateur et mot de passe."; return; }
+
+        setBtnLoading(document.getElementById('login-button'), true, 'fas fa-sign-in-alt');
+        try {
+            const response = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error(result.message || 'Échec connexion.');
+
+            loggedInUser = result.username;
+            selectedSection = section;
+            isAdmin = admins.has(loggedInUser);
+            
+            // Vérification de l'autorisation par section pour les non-admins
+            if (!isAdmin) {
+                if (selectedSection === 'garcons' && !teachers_garcons.has(loggedInUser)) throw new Error('Utilisateur non autorisé pour la section Garçons.');
+                if (selectedSection === 'filles' && !teachers_filles.has(loggedInUser)) throw new Error('Utilisateur non autorisée pour la section Filles.');
+            }
+
+            // Affichage de l'interface principale
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            
+            // Afficher le bon conteneur de section
+            document.getElementById('section-content-garcons').style.display = selectedSection === 'garcons' ? 'block' : 'none';
+            document.getElementById('section-content-filles').style.display = selectedSection === 'filles' ? 'block' : 'none';
+
+            // Mise à jour de l'UI
+            document.getElementById('main-title').textContent = `Plans Hebdomadaires - ${selectedSection.charAt(0).toUpperCase() + selectedSection.slice(1)}`;
+            document.getElementById('loggedInUserInfo').textContent = `Connecté: ${loggedInUser}`;
+
+            // Initialiser le sélecteur de semaines
+            const weekSelector = document.getElementById('weekSelector');
+            weekSelector.innerHTML = '<option value="">-- Sélectionnez une semaine --</option>';
+            for (let i = 1; i <= 48; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Semaine ${i}`;
+                weekSelector.appendChild(option);
+            }
+            
+            alertMsg(`Bienvenue ${loggedInUser}!`, 'success');
+
+        } catch (e) {
+            errDiv.textContent = e.message;
+        } finally {
+            setBtnLoading(document.getElementById('login-button'), false, 'fas fa-sign-in-alt');
         }
-
-        // UI
-        document.getElementById('login-form').style.display='none';
-        document.getElementById('main-content').style.display='block';
-        document.getElementById('main-title').textContent = `Plans Hebdomadaires - ${selectedSection[0].toUpperCase()+selectedSection.slice(1)}`;
-        document.getElementById('loggedInUserInfo').textContent = `Connecté: ${loggedInUser}`;
-        document.getElementById('admin-actions').style.display = isAdmin ? 'flex' : 'none';
-
-        // semaines
-        const ws=document.getElementById('weekSelector'); ws.innerHTML='<option value="">-- Sélectionnez une semaine --</option>'; for(let i=1;i<=48;i++){const o=document.createElement('option');o.value=i;o.textContent=`Semaine ${i}`;ws.appendChild(o);}
-
-        // tri: options selon rôle
-        const sortKey=document.getElementById('sortKey');
-        sortKey.innerHTML='';
-        const add=(v,l)=>{const o=document.createElement('option');o.value=v;o.textContent=l;sortKey.appendChild(o);};
-        if (isAdmin){ add('Enseignant','Enseignant'); }
-        add('Classe','Classe'); add('Matière','Matière'); add('Période','Période'); add('Jour','Jour'); add('updatedAt','Mis à jour');
-
-        alertMsg(`Bienvenue ${loggedInUser}!`, 'success');
-      }catch(e){ err.textContent=e.message; }
-      finally{ setBtnLoading(document.getElementById('login-button'), false, 'fas fa-sign-in-alt'); }
     }
-    function handleLogout(){ loggedInUser=null; selectedSection=null; isAdmin=false; document.getElementById('main-content').style.display='none'; document.getElementById('login-form').style.display='block'; }
 
-    // ====== DATA ======
-    async function loadPlanForWeek(){
-      const w=document.getElementById('weekSelector').value; if(!w){ resetMain(); return; }
-      currentWeek=w;
-      try{
-        const r=await fetch(`/api/plans/${w}?section=${selectedSection}`); const j=await r.json(); if(!r.ok) throw new Error(j.message||'Erreur serveur.');
-        planData = Array.isArray(j.planData)?j.planData:[]; weeklyClassNotes=j.classNotes||{};
-        headers = planData.length ? Object.keys(planData[0]).filter(k=>k!=='_id'&&k!=='id') : ['Enseignant','Jour','Période','Classe','Matière','Leçon','Travaux de classe','Support','Devoirs','updatedAt'];
-        filteredData = planData.slice();
-        // dates semaine
-        const d = weekDates[w];
-        if (d?.start && d?.end){
-          const sd = new Date(d.start+'T00:00:00Z'); const ed = new Date(d.end+'T00:00:00Z');
-          const tf = (dt)=>`${['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'][dt.getUTCDay()]} ${String(dt.getUTCDate()).padStart(2,'0')}/${String(dt.getUTCMonth()+1).padStart(2,'0')}/${dt.getUTCFullYear()}`;
-          document.getElementById('weekDateRange').textContent = `S${w}: du ${tf(sd)} à ${tf(ed)}`;
+    function handleLogout() {
+        loggedInUser = null;
+        selectedSection = null;
+        isAdmin = false;
+        document.getElementById('main-content').style.display = 'none';
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+    }
+    
+    // ====== DATA & RENDERING ======
+    async function loadPlanForWeek() {
+        const week = document.getElementById('weekSelector').value;
+        currentWeek = week;
+        if (!week) { /* ... logique pour réinitialiser ... */ return; }
+
+        try {
+            const response = await fetch(`/api/plans/${week}?section=${selectedSection}`);
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'Erreur serveur.');
+
+            sectionData[selectedSection].planData = Array.isArray(result.planData) ? result.planData : [];
+            sectionData[selectedSection].weeklyClassNotes = result.classNotes || {};
+            sectionData[selectedSection].headers = sectionData[selectedSection].planData.length ? Object.keys(sectionData[selectedSection].planData[0]).filter(k => k !== '_id' && k !== 'id') : [];
+            
+            sortAndDisplay(); // Affiche les données triées par défaut
+            populateFilterOptions();
+            populateNotesClassSelector();
+            updateActionButtonsState(true);
+
+        } catch (e) {
+            alertMsg(`Erreur chargement S${week}: ${e.message}`, 'error');
         }
-        renderTable(); populateNotesClassSelector(); populateAdminReportClassSelector(); updateActionButtonsState(true);
-      }catch(e){ alertMsg(`Erreur chargement S${w}: ${e.message}`,'error'); resetMain(); }
     }
 
-    function resetMain(){
-      planData=[]; filteredData=[]; headers=[]; weeklyClassNotes={};
-      document.querySelector('#planTable thead tr').innerHTML='';
-      document.querySelector('#planTable tbody').innerHTML='<tr><td colspan="12" style="text-align:center;padding:20px;color:grey">Veuillez sélectionner une semaine pour afficher les données.</td></tr>';
-      updateActionButtonsState(false);
-      document.getElementById('notesClassSelector').innerHTML='<option value="">-- Sélectionnez une classe --</option>';
-    }
+    function sortAndDisplay() {
+        const section = selectedSection;
+        const data = sectionData[section].planData;
 
-    // ====== TRI ======
-    function applySort(){
-      const key=document.getElementById('sortKey').value;
-      const order=document.getElementById('sortOrder').value;
-      const dir = order==='desc'?-1:1;
-      filteredData.sort((a,b)=>{
-        const va=(a[key]??'').toString(); const vb=(b[key]??'').toString();
-        if (key==='Classe') return dir*compareClasses(va,vb);
-        if (key==='Période') return dir*((parseInt(va,10)||0)-(parseInt(vb,10)||0));
-        if (key==='updatedAt') return dir*(new Date(va)-new Date(vb));
-        return dir*va.localeCompare(vb,'fr',{numeric:true,sensitivity:'base'});
-      });
-      renderTable();
-    }
-    function resetSort(){ filteredData=planData.slice(); renderTable(); }
+        const ensF = document.getElementById(`filterEnseignant_${section}`).value;
+        const clsF = document.getElementById(`filterClasse_${section}`).value;
+        const matF = document.getElementById(`filterMatiere_${section}`).value;
+        const perF = document.getElementById(`filterPeriode_${section}`).value;
+        const jF = document.getElementById(`filterJour_${section}`).value;
 
-    // ====== RENDER TABLE ======
-    function renderTable(){
-      const thead=document.querySelector('#planTable thead tr');
-      const tbody=document.querySelector('#planTable tbody');
-      thead.innerHTML=''; tbody.innerHTML='';
+        const ensK = findH('Enseignant'), clsK = findH('Classe'), matK = findH('Matière'), perK = findH('Période'), jK = findH('Jour');
 
-      const order = ['Enseignant','Jour','Période','Classe','Matière','Leçon','Travaux de classe','Support','Devoirs','updatedAt','__actions'];
-      order.forEach(h=>{ const th=document.createElement('th'); th.textContent= (h==='__actions'?'Actions':(h==='updatedAt'?'Mis à jour':h)); thead.appendChild(th); });
-
-      const editable=new Set(['Leçon','Travaux de classe','Support','Devoirs']);
-
-      filteredData.forEach(row=>{
-        const tr=document.createElement('tr');
-        order.forEach(h=>{
-          const td=document.createElement('td');
-          if (h==='__actions'){
-            td.className='actions-column';
-
-            const saveBtn=document.createElement('button');
-            saveBtn.className='save-row-button';
-            saveBtn.title='Enregistrer cette ligne';
-            saveBtn.innerHTML='<i class="fas fa-check"></i>';
-            saveBtn.addEventListener('click',()=>saveRow(row,tr));
-            td.appendChild(saveBtn);
-
-            const aiDocx=document.createElement('button');
-            aiDocx.className='save-row-button';
-            aiDocx.style.color='#0d6efd';
-            aiDocx.title='Plan de leçon (IA, 45 min) - DOCX';
-            aiDocx.innerHTML='<i class="fas fa-robot"></i>';
-            aiDocx.addEventListener('click',()=>generateAILessonDocx(row, aiDocx));
-            td.appendChild(aiDocx);
-          } else if (editable.has(h)) {
-            td.className='editable'; td.contentEditable=true; td.textContent=row[h]??'';
-            td.addEventListener('input',()=>{ row[h]=td.textContent; tr.classList.add('modified'); });
-          } else if (h==='updatedAt') {
-            td.className='updated-at-column'; td.textContent=row.updatedAt?formatUpdatedAt(row.updatedAt):'';
-          } else {
-            td.textContent=row[h]??'';
-          }
-          tr.appendChild(td);
+        let filtered = data.filter(item => {
+            const passEns = !ensF || (ensK && item[ensK] === ensF);
+            const passCls = !clsF || (clsK && item[clsK] === clsF);
+            const passMat = !matF || (matK && item[matK] === matF);
+            const passPer = !perF || (perK && String(item[perK]) === perF);
+            const passJour = !jF || (jK && item[jK] === jF);
+            return passEns && passCls && passMat && passPer && passJour;
         });
-        tbody.appendChild(tr);
-      });
-    }
 
-    async function saveRow(rowData, tr){
-      const btn=tr.querySelector('.save-row-button');
-      setBtnLoading(btn,true,'fas fa-check');
-      try{
-        const r=await fetch('/api/save-row',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({week:currentWeek,data:rowData,section:selectedSection})});
-        const j=await r.json(); if(!r.ok) throw new Error(j.message||'Erreur de sauvegarde.');
-        tr.classList.remove('modified');
-        const upd=tr.querySelector('.updated-at-column'); if (upd && j.updatedData?.updatedAt) upd.textContent=formatUpdatedAt(j.updatedData.updatedAt);
-        alertMsg('Ligne enregistrée.','success');
-      }catch(e){ alertMsg(e.message,'error'); }
-      finally{ setBtnLoading(btn,false,'fas fa-check'); }
-    }
-
-    // ====== IA -> DOCX (45 min) ======
-    async function generateAILessonDocx(row, btn){
-      if (!currentWeek){ alertMsg('Sélectionnez d’abord une semaine.','error'); return; }
-      setBtnLoading(btn,true,'fas fa-robot');
-      try{
-        const r=await fetch('/api/generate-ai-lesson-docx',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ row, week: currentWeek, section: selectedSection })
+        // Tri par défaut (Classe > Jour > Période)
+        const dayOrder = { "Dimanche": 1, "Lundi": 2, "Mardi": 3, "Mercredi": 4, "Jeudi": 5 };
+        filtered.sort((a, b) => {
+            const classComp = compareClasses(a[clsK], b[clsK]);
+            if (classComp !== 0) return classComp;
+            const dayComp = (dayOrder[a[jK]] || 99) - (dayOrder[b[jK]] || 99);
+            if (dayComp !== 0) return dayComp;
+            return (parseInt(a[perK], 10) || 0) - (parseInt(b[perK], 10) || 0);
         });
-        if (!r.ok){
-          const j=await r.json().catch(()=>({message:'Erreur'}));
-          throw new Error(j.message||'Erreur IA/DOCX.');
+
+        sectionData[section].filteredData = filtered;
+        renderTable();
+    }
+    
+    function renderTable() {
+        const section = selectedSection;
+        const thead = document.querySelector(`#planTable_${section} thead tr`);
+        const tbody = document.querySelector(`#planTable_${section} tbody`);
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
+        
+        const data = sectionData[section].filteredData;
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">Aucune donnée à afficher avec les filtres actuels.</td></tr>`;
+            return;
         }
-        const blob=await r.blob();
-        const cls = (row['Classe']||'Classe').replace(/[^a-z0-9]/gi,'_');
-        const mat = (row['Matière']||'Matiere').replace(/[^a-z0-9]/gi,'_');
-        saveAs(blob, `Plan_de_lecon_${selectedSection}_S${currentWeek}_${cls}_${mat}.docx`);
-        alertMsg('Plan de leçon (DOCX) généré.','success');
-      }catch(e){ alertMsg(e.message,'error'); }
-      finally{ setBtnLoading(btn,false,'fas fa-robot'); }
+
+        const headersToDisplay = ['Enseignant', 'Jour', 'Période', 'Classe', 'Matière', 'Leçon', 'Travaux de classe', 'Support', 'Devoirs'];
+        headersToDisplay.forEach(h => { const th = document.createElement('th'); th.textContent = h; thead.appendChild(th); });
+        const thActions = document.createElement('th'); thActions.textContent = "Actions"; thead.appendChild(thActions);
+        const thUpdated = document.createElement('th'); thUpdated.textContent = "Mis à jour"; thead.appendChild(thUpdated);
+        
+        const editableKeys = new Set(['Leçon', 'Travaux de classe', 'Support', 'Devoirs']);
+
+        data.forEach((rowData, rowIndex) => {
+            const tr = document.createElement('tr');
+            tr.dataset.rowIndex = rowIndex;
+            
+            headersToDisplay.forEach(header => {
+                const key = findH(header);
+                const td = document.createElement('td');
+                td.textContent = key ? rowData[key] : '';
+                if (editableKeys.has(header)) {
+                    td.contentEditable = true;
+                    td.classList.add('editable');
+                    td.addEventListener('input', (e) => {
+                        if (key) rowData[key] = e.target.textContent;
+                        tr.classList.add('modified');
+                    });
+                }
+                tr.appendChild(td);
+            });
+            
+            // Colonne Actions
+            const tdActions = document.createElement('td');
+            const saveBtn = document.createElement('button');
+            saveBtn.innerHTML = '<i class="fas fa-check"></i>';
+            saveBtn.className = 'save-row-button';
+            saveBtn.onclick = () => saveRow(rowData, tr);
+            tdActions.appendChild(saveBtn);
+
+            const aiBtn = document.createElement('button');
+            aiBtn.innerHTML = '<i class="fas fa-robot"></i>';
+            aiBtn.className = 'ai-lesson-plan-button pro-button';
+            aiBtn.title = 'Plan de leçon (IA)';
+            aiBtn.onclick = () => generateAILessonDocx(rowData, aiBtn);
+            tdActions.appendChild(aiBtn);
+            tr.appendChild(tdActions);
+
+            // Colonne Mis à jour
+            const tdUpdated = document.createElement('td');
+            const updKey = findH('updatedAt');
+            tdUpdated.textContent = updKey ? formatUpdatedAt(rowData[updKey]) : '';
+            tr.appendChild(tdUpdated);
+
+            tbody.appendChild(tr);
+        });
     }
 
-    // ====== Notes ======
-    function populateNotesClassSelector(){
-      const sel=document.getElementById('notesClassSelector');
-      sel.innerHTML='<option value="">-- Sélectionnez une classe --</option>';
-      const classes=[...new Set(planData.map(r=>r['Classe']).filter(Boolean))].sort(compareClasses);
-      classes.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
-      document.getElementById('notesInput').value=''; document.getElementById('notesInput').disabled=true; document.getElementById('saveNotesBtn').disabled=true;
+    // ====== ACTIONS (SAVE, GENERATE, etc.) ======
+    async function saveRow(rowData, tr) {
+        const btn = tr.querySelector('.save-row-button');
+        setBtnLoading(btn, true, 'fas fa-check');
+        try {
+            const response = await fetch('/api/save-row', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ week: currentWeek, data: rowData, section: selectedSection })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'Erreur de sauvegarde.');
+            
+            tr.classList.remove('modified');
+            // Mettre à jour la date 'updatedAt' dans la vue
+            const updKey = findH('updatedAt');
+            if (updKey && result.updatedData?.updatedAt) {
+                rowData[updKey] = result.updatedData.updatedAt;
+                const tdUpdated = tr.cells[tr.cells.length - 1]; // La dernière cellule
+                tdUpdated.textContent = formatUpdatedAt(result.updatedData.updatedAt);
+            }
+            alertMsg('Ligne enregistrée.', 'success');
+        } catch (e) {
+            alertMsg(e.message, 'error');
+        } finally {
+            setBtnLoading(btn, false, 'fas fa-check');
+        }
     }
-    function displayClassNotes(){
-      const c=document.getElementById('notesClassSelector').value;
-      const txt=document.getElementById('notesInput'); const btn=document.getElementById('saveNotesBtn');
-      if(!c){ txt.value=''; txt.disabled=true; btn.disabled=true; return; }
-      txt.value = weeklyClassNotes[c] || ''; txt.disabled=false; btn.disabled=false;
-    }
-    async function saveNotes(){
-      const c=document.getElementById('notesClassSelector').value;
-      if(!c||!currentWeek) return;
-      setBtnLoading(document.getElementById('saveNotesBtn'),true,'fas fa-save');
-      try{
-        const r=await fetch('/api/save-notes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({week:currentWeek,classe:c,notes:document.getElementById('notesInput').value,section:selectedSection})});
-        const j=await r.json(); if(!r.ok) throw new Error(j.message||'Erreur sauvegarde.');
-        weeklyClassNotes[c]=document.getElementById('notesInput').value; alertMsg(`Notes enregistrées pour ${c}, S${currentWeek}.`,'success');
-      }catch(e){ alertMsg(e.message,'error'); }
-      finally{ setBtnLoading(document.getElementById('saveNotesBtn'),false,'fas fa-save'); }
+    
+    // --- Fonctions pour générer Word, Excel, sauvegarder les notes, etc. ---
+    // Ces fonctions doivent être adaptées pour utiliser `selectedSection` et les IDs des éléments de la section active.
+    // Exemple pour generateWordByClasse :
+    async function generateWordByClasse() {
+        const section = selectedSection;
+        const dataToExport = sectionData[section].filteredData;
+        if (!dataToExport.length) { alertMsg('Aucune donnée à exporter.', 'error'); return; }
+
+        setBtnLoading(document.getElementById(`generateWordBtn_${section}`), true, 'fas fa-file-word');
+        const byClass = {};
+        const classKey = findH('Classe');
+        dataToExport.forEach(r => { const c = r[classKey]; if(c) (byClass[c] ||= []).push(r); });
+        
+        let ok = 0, err = 0;
+        for (const classe of Object.keys(byClass)) {
+            try {
+                const response = await fetch('/api/generate-word', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        week: currentWeek,
+                        classe: classe,
+                        data: byClass[classe],
+                        notes: sectionData[section].weeklyClassNotes[classe] || '',
+                        section: section
+                    })
+                });
+                if (!response.ok) throw new Error(`Erreur pour la classe ${classe}`);
+                const blob = await response.blob();
+                saveAs(blob, `Plan_${section}_S${currentWeek}_${classe}.docx`);
+                ok++;
+            } catch { err++; }
+        }
+        alertMsg(err ? `Génération Word: ${ok} succès / ${err} erreurs.` : 'Documents Word générés avec succès.', 'success');
+        setBtnLoading(document.getElementById(`generateWordBtn_${section}`), false, 'fas fa-file-word');
     }
 
-    // ====== Admin extra ======
-    async function populateAdminReportClassSelector(){
-      const sel=document.getElementById('adminReportClassSelector');
-      if(!isAdmin){ sel.innerHTML='<option value="">(non admin)</option>'; return; }
-      sel.innerHTML='<option value="">-- Chargement des classes --</option>';
-      try{
-        const r=await fetch(`/api/all-classes?section=${selectedSection}`); const j=await r.json();
-        if(!r.ok) throw new Error('Erreur serveur');
-        sel.innerHTML='<option value="">-- Sélectionnez une classe pour le rapport --</option>';
-        j.sort(compareClasses).forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
-      }catch{ sel.innerHTML='<option value="">Erreur chargement</option>'; }
+    async function generateAILessonDocx(row, btn) { /* ... identique à votre code actuel, mais envoyer `selectedSection` ... */ }
+    
+    // --- Fonctions pour peupler les filtres, gérer les notes, etc. ---
+    function populateFilterOptions() {
+        const section = selectedSection;
+        const data = sectionData[section].planData;
+        const getUniq = (k) => [...new Set(data.map(i => i[k]).filter(Boolean))].sort();
+
+        const updateSel = (id, opts, isClass = false) => {
+            const sel = document.getElementById(id);
+            sel.innerHTML = `<option value="">${isClass ? 'Toutes' : 'Tous'}</option>`;
+            opts.forEach(o => {
+                const opt = document.createElement('option');
+                opt.value = o;
+                opt.textContent = o;
+                sel.appendChild(opt);
+            });
+        };
+        
+        updateSel(`filterEnseignant_${section}`, getUniq(findH('Enseignant')));
+        updateSel(`filterClasse_${section}`, getUniq(findH('Classe')).sort(compareClasses), true);
+        updateSel(`filterMatiere_${section}`, getUniq(findH('Matière')));
+        updateSel(`filterPeriode_${section}`, getUniq(findH('Période')));
     }
 
-    // ====== Upload Excel / Exports ======
-    function handleFileUpload(e){
-      const file=e.target.files[0]; const status=document.getElementById('file-upload-status'); const saveBtn=document.getElementById('saveUploadedDataBtn');
-      uploadedPlanData=null; saveBtn.disabled=true; status.textContent='';
-      if(!file){ status.textContent='Aucun fichier sélectionné.'; return; }
-      if(!/\.(xlsx|xls)$/i.test(file.name)){ status.textContent='Type invalide (.xlsx/.xls).'; e.target.value=''; return; }
-      status.textContent=`Lecture du fichier ${file.name}...`;
-      const reader=new FileReader();
-      reader.onload=function(ev){
-        try{
-          const wb=XLSX.read(ev.target.result,{type:'array'});
-          const ws=wb.Sheets[wb.SheetNames[0]];
-          const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:false});
-          const hdr=rows[0].map(h=>h?String(h).trim().replace(/\s+/g,' '):null).filter(Boolean);
-          uploadedPlanData=rows.slice(1).map(r=>{const o={}; hdr.forEach((h,i)=>o[h]=r[i]??null); return Object.values(o).some(v=>v!=null && String(v).trim()!=='')?o:null;}).filter(Boolean);
-          status.textContent=`Fichier ${file.name} lu (${uploadedPlanData.length} lignes).`; saveBtn.disabled = !uploadedPlanData.length;
-        }catch(err){ status.textContent=`Erreur lecture: ${err.message}`; uploadedPlanData=null; saveBtn.disabled=true; e.target.value=''; }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-    async function saveUploadedData(){
-      const w=document.getElementById('weekSelector').value;
-      if(!w){ alertMsg('Sélectionnez une semaine.','error'); return; }
-      if(!uploadedPlanData?.length){ alertMsg('Aucune donnée chargée.','error'); return; }
-      setBtnLoading(document.getElementById('saveUploadedDataBtn'),true,'fas fa-database');
-      try{
-        const r=await fetch('/api/save-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({week:w,data:uploadedPlanData,section:selectedSection})});
-        const j=await r.json(); if(!r.ok) throw new Error(j.message||'Erreur serveur.');
-        alertMsg(`Données chargées enregistrées pour S${w}.`,'success'); if(String(w)===String(currentWeek)) await loadPlanForWeek();
-      }catch(e){ alertMsg(e.message,'error'); }
-      finally{ setBtnLoading(document.getElementById('saveUploadedDataBtn'),false,'fas fa-database'); }
-    }
-    async function generateExcelWorkbook(){
-      if(!currentWeek) return;
-      setBtnLoading(document.getElementById('generateExcelBtn'),true,'fas fa-file-excel');
-      try{
-        const r=await fetch('/api/generate-excel-workbook',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({week:currentWeek,section:selectedSection})});
-        if(!r.ok) throw new Error('Erreur de génération.');
-        const blob=await r.blob(); saveAs(blob,`Plan_Complet_${selectedSection}_S${currentWeek}.xlsx`); alertMsg('Fichier Excel généré.','success');
-      }catch(e){ alertMsg(e.message,'error'); }
-      finally{ setBtnLoading(document.getElementById('generateExcelBtn'),false,'fas fa-file-excel'); }
-    }
-    async function generateWordByClasse(){
-      if(!filteredData.length){ alertMsg('Aucune donnée à exporter.','error'); return; }
-      setBtnLoading(document.getElementById('generateWordBtn'),true,'fas fa-file-word');
-      const byClass={}; filteredData.forEach(r=>{const c=r['Classe']; (byClass[c] ||= []).push(r);});
-      let ok=0,err=0;
-      for(const c of Object.keys(byClass)){
-        try{
-          const r=await fetch('/api/generate-word',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({week:currentWeek,classe:c,data:byClass[c],notes:weeklyClassNotes[c]||'',section:selectedSection})});
-          if(!r.ok) throw new Error(`Erreur ${c}`);
-          const blob=await r.blob(); saveAs(blob,`Plan_${selectedSection}_S${currentWeek}_${c}.docx`); ok++;
-        }catch{err++;}
-      }
-      alertMsg(err?`DOCX: ${ok} succès / ${err} erreurs.`:'DOCX générés.','success');
-      setBtnLoading(document.getElementById('generateWordBtn'),false,'fas fa-file-word');
-    }
+    function populateNotesClassSelector() { /* ... à adapter pour utiliser l'ID de la section ... */ }
+    function displayClassNotes() { /* ... à adapter pour utiliser l'ID de la section ... */ }
+    async function saveNotes() { /* ... à adapter pour utiliser l'ID de la section ... */ }
 
-    function updateActionButtonsState(en){ document.getElementById('generateWordBtn').disabled=!en; document.getElementById('generateExcelBtn').disabled=!en; document.getElementById('saveAllDisplayedBtn').disabled=!en; }
+    function updateActionButtonsState(enabled) {
+        if (!selectedSection) return;
+        document.getElementById(`generateWordBtn_${selectedSection}`).disabled = !enabled;
+        document.getElementById(`generateExcelBtn_${selectedSection}`).disabled = !enabled;
+        document.getElementById(`saveAllDisplayedBtn_${selectedSection}`).disabled = !enabled;
+    }
 
     // ====== EVENTS ======
-    document.addEventListener('DOMContentLoaded',()=>{
-      document.getElementById('login-button').addEventListener('click',handleLogin);
-      document.getElementById('logout-button').addEventListener('click',handleLogout);
-      document.getElementById('togglePassword').addEventListener('click',()=>{const p=document.getElementById('password');const t=p.type==='password'?'text':'password';p.type=t;document.getElementById('togglePassword').className=t==='password'?'fas fa-eye password-toggle-icon':'fas fa-eye-slash password-toggle-icon';});
-      document.getElementById('weekSelector').addEventListener('change',loadPlanForWeek);
-      document.getElementById('applySortBtn').addEventListener('click',applySort);
-      document.getElementById('resetSortBtn').addEventListener('click',resetSort);
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('login-button').addEventListener('click', handleLogin);
+        document.getElementById('logout-button').addEventListener('click', handleLogout);
+        document.getElementById('togglePassword').addEventListener('click', () => {
+             const p = document.getElementById('password'); 
+             p.type = p.type === 'password' ? 'text' : 'password';
+        });
 
-      document.getElementById('excelFileInput').addEventListener('change',handleFileUpload);
-      document.getElementById('saveUploadedDataBtn').addEventListener('click',saveUploadedData);
-      document.getElementById('generateExcelBtn').addEventListener('click',generateExcelWorkbook);
-      document.getElementById('generateWordBtn').addEventListener('click',generateWordByClasse);
-
-      document.getElementById('notesClassSelector').addEventListener('change',displayClassNotes);
-      document.getElementById('saveNotesBtn').addEventListener('click',saveNotes);
-
-      // Précocher utilisateur mémorisé (optionnel)
-      const remembered=localStorage.getItem('rememberedUser');
-      if(remembered){ try{ const {user,section}=JSON.parse(remembered); if(user&&section){document.getElementById('username').value=user;document.getElementById('sectionSelectorLogin').value=section;document.getElementById('rememberMe').checked=true;} }catch{} }
+        // Attacher les événements pour chaque section
+        ['garcons', 'filles'].forEach(section => {
+            document.getElementById(`generateWordBtn_${section}`).addEventListener('click', generateWordByClasse);
+            // ... attacher les autres événements pour generateExcel, saveAll, etc. ...
+            
+            // Événements pour les filtres
+            document.getElementById(`filterEnseignant_${section}`).addEventListener('change', sortAndDisplay);
+            document.getElementById(`filterClasse_${section}`).addEventListener('change', sortAndDisplay);
+            document.getElementById(`filterMatiere_${section}`).addEventListener('change', sortAndDisplay);
+            document.getElementById(`filterPeriode_${section}`).addEventListener('change', sortAndDisplay);
+            document.getElementById(`filterJour_${section}`).addEventListener('change', sortAndDisplay);
+        });
     });
-  </script>
+
+    </script>
 </body>
 </html>
