@@ -1,4 +1,3 @@
-```javascript
 const express = require('express');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
@@ -56,55 +55,26 @@ const specificWeekDateRangesNode = {
     47: { start: '2025-07-13', end: '2025-07-17' }, 48: { start: '2025-07-20', end: '2025-07-24' }
 };
 
-// ===== MODIFICATION : Remplacement de validUsers par un objet structuré =====
-const users = {
-    // Admins
-    "Mohamed":    { password: "Mohamed", role: "Admin" },
-    "Zohra":      { password: "Zohra",   role: "Admin" },
-    // Utilisateurs
-    "Abeer":      { password: "Abeer",      role: "User" },
-    "Aichetou":   { password: "Aichetou",   role: "User" },
-    "Amal":       { password: "Amal",       role: "User" },
-    "Amal Najar": { password: "Amal",  role: "User" },
-    "Ange":       { password: "Ange",       role: "User" },
-    "Anouar":     { password: "Anouar",     role: "User" },
-    "Emen":       { password: "Emen",       role: "User" },
-    "Farah":      { password: "Farah",      role: "User" },
-    "Fatima":     { password: "Fatima",     role: "User" },
-    "Ghadah":     { password: "Ghadah",     role: "User" },
-    "Hana":       { password: "Hana",       role: "User" },
-    "Nada":       { password: "Nada",       role: "User" },
-    "Raghd":      { password: "Raghd",      role: "User" },
-    "Salma":      { password: "Salma",      role: "User" },
-    "Sara":       { password: "Sara",       role: "User" },
-    "Souha":      { password: "Souha",      role: "User" },
-    "Takwa":      { password: "Takwa",      role: "User" }
+const validUsers = {
+    "Zine": "Zine", "Abas": "Abas", "Tonga": "Tonga", "Ilyas": "Ilyas", "Morched": "Morched",
+    "عبد الرحمان": "عبد الرحمان", "Youssif": "Youssif", "عبد العزيز": "عبد العزيز",
+    "Med Ali": "Med Ali", "Sami": "Sami", "جابر": "جابر", "محمد الزبيدي": "محمد الزبيدي",
+    "فارس": "فارس", "AutreProf": "AutreProf", "Mohamed": "Mohamed"
 };
 
-
-// --- Fonctions utilitaires (inchangées) ---
+// --- Fonctions utilitaires ---
 function formatDateFrenchNode(date) { /* ... (copié de votre server.js) ... */ }
 function getDateForDayNameNode(weekStartDate, dayName) { /* ... (copié de votre server.js) ... */ }
 // (Copiez vos fonctions utilitaires de date ici pour garder le code propre)
 
 // --- Routes de l'API ---
 
-// ===== MODIFICATION : Route de login mise à jour pour utiliser le nouvel objet `users` =====
 // POST /api/login
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-    const user = users[username];
-
-    // Vérifie si l'utilisateur existe et si le mot de passe correspond
-    if (user && user.password === password) {
-        // En cas de succès, renvoie le nom d'utilisateur et son rôle
-        res.status(200).json({ 
-            success: true, 
-            username: username,
-            role: user.role // Envoie le rôle au client
-        });
+    if (validUsers[username] && validUsers[username] === password) {
+        res.status(200).json({ success: true, username: username });
     } else {
-        // En cas d'échec, renvoie un message d'erreur
         res.status(401).json({ success: false, message: 'Identifiants invalides' });
     }
 });
@@ -233,7 +203,7 @@ app.get('/api/all-classes', async (req, res) => {
     }
 });
 
-// --- Routes pour la génération de fichiers (inchangées) ---
+// --- Routes pour la génération de fichiers ---
 // Note: La logique interne de ces fonctions est la même, seule la récupération des données change.
 // J'ai copié la logique de votre `server.js` ici, en l'adaptant à PostgreSQL.
 
@@ -245,5 +215,3 @@ app.post('/api/generate-ai-lesson-plan', async (req, res) => { /* ... Logique de
 
 // Exporter l'app pour Vercel
 module.exports = app;
-
-
