@@ -62,23 +62,23 @@ const users = {
     "Mohamed":    { password: "MohamedPassword2025", role: "Admin" },
     "Zohra":      { password: "ZohraPassword2025",   role: "Admin" },
     // Utilisateurs
-    "Abeer":      { password: "AbeerPassword2025",      role: "User" },
-    "Aichetou":   { password: "AichetouPassword2025",   role: "User" },
-    "Amal":       { password: "AmalPassword2025",       role: "User" },
-    "Amal Najar": { password: "AmalNajarPassword2025",  role: "User" },
-    "Ange":       { password: "AngePassword2025",       role: "User" },
-    "Anouar":     { password: "AnouarPassword2025",     role: "User" },
-    "Emen":       { password: "EmenPassword2025",       role: "User" },
-    "Farah":      { password: "FarahPassword2025",      role: "User" },
-    "Fatima":     { password: "FatimaPassword2025",     role: "User" },
-    "Ghadah":     { password: "GhadahPassword2025",     role: "User" },
-    "Hana":       { password: "HanaPassword2025",       role: "User" },
-    "Nada":       { password: "NadaPassword2025",       role: "User" },
-    "Raghd":      { password: "RaghdPassword2025",      role: "User" },
-    "Salma":      { password: "SalmaPassword2025",      role: "User" },
-    "Sara":       { password: "SaraPassword2025",       role: "User" },
-    "Souha":      { password: "SouhaPassword2025",      role: "User" },
-    "Takwa":      { password: "TakwaPassword2025",      role: "User" }
+    "Abeer":      { password: "Abeer",      role: "User" },
+    "Aichetou":   { password: "Aichetou",   role: "User" },
+    "Amal":       { password: "Amal",       role: "User" },
+    "Amal Najar": { password: "Amal",  role: "User" },
+    "Ange":       { password: "Ange",       role: "User" },
+    "Anouar":     { password: "Anouar",     role: "User" },
+    "Emen":       { password: "Emen",       role: "User" },
+    "Farah":      { password: "Farah",      role: "User" },
+    "Fatima":     { password: "Fatima",     role: "User" },
+    "Ghadah":     { password: "Ghadah",     role: "User" },
+    "Hana":       { password: "Hana",       role: "User" },
+    "Nada":       { password: "Nada",       role: "User" },
+    "Raghd":      { password: "Raghd",      role: "User" },
+    "Salma":      { password: "Salma",      role: "User" },
+    "Sara":       { password: "Sara",       role: "User" },
+    "Souha":      { password: "Souha",      role: "User" },
+    "Takwa":      { password: "Takwa",      role: "User" }
 };
 
 
@@ -245,3 +245,4 @@ app.post('/api/generate-ai-lesson-plan', async (req, res) => { /* ... Logique de
 
 // Exporter l'app pour Vercel
 module.exports = app;
+
