@@ -1,5 +1,6 @@
 // api/index.js
-// ———————————————————————————————————————————
+// CE FICHIER EST CORRECT ET RESTE INCHANGÉ.
+
 const express = require('express');
 const cors = require('cors');
 const XLSX = require('xlsx');
@@ -16,8 +17,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // ---------- ENV ----------
 const MONGO_URL = process.env.MONGO_URL;
-const WORD_TEMPLATE_URL = process.env.WORD_TEMPLATE_URL;          // plan hebdo (existant)
-const LESSON_TEMPLATE_URL = process.env.LESSON_TEMPLATE_URL;      // ✅ nouveau : modèle docx Plan de leçon
+const WORD_TEMPLATE_URL = process.env.WORD_TEMPLATE_URL;
+const LESSON_TEMPLATE_URL = process.env.LESSON_TEMPLATE_URL;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 if (!MONGO_URL) console.error("FATAL: MONGO_URL n'est pas défini.");
@@ -107,7 +108,6 @@ app.post('/api/login', (req, res) => {
   return res.status(401).json({ success: false, message: 'Identifiants invalides.' });
 });
 
-// ------- Plans hebdo (inchangé, avec corrections robustesse) -------
 app.get('/api/plans/:week', async (req, res) => {
   try {
     const week = parseInt(req.params.week, 10);
@@ -187,7 +187,6 @@ app.get('/api/all-classes', async (req, res) => {
   } catch (e) { console.error('/api/all-classes', e); return res.status(500).json({ message: 'Erreur serveur.' }); }
 });
 
-// ------- Exports existants (Word hebdo / Excel / Rapport) -------
 app.post('/api/generate-word', async (req, res) => {
   try {
     const { week, classe, data, notes, section } = req.body || {};
@@ -324,9 +323,6 @@ app.post('/api/full-report-by-class', async (req, res) => {
   } catch (e) { console.error('/api/full-report-by-class', e); return res.status(500).json({ message:'Erreur interne du rapport.' }); }
 });
 
-// ===============================================================
-// =========== IA PLAN DE LEÇON (45 min) -> DOCX ================
-// ===============================================================
 app.post('/api/generate-ai-lesson-docx', async (req, res) => {
   try {
     if (!geminiModel) return res.status(503).json({ message: 'Service IA non configuré.' });
@@ -342,14 +338,12 @@ app.post('/api/generate-ai-lesson-docx', async (req, res) => {
     const periode = row[findKey(row,'Période')] || '';
     const lecon = row[findKey(row,'Leçon')] || '';
     const titreUnite = row[findKey(row,'Titre de l’unité')] || row[findKey(row,"Titre de l'unité")] || '';
-
-    // Date du jour (à partir de la semaine)
+    
     const info = specificWeekDateRanges[Number(week)];
     if (!info?.start) return res.status(400).json({ message:`Dates semaine S${week} indisponibles.` });
     const start = new Date(info.start + 'T00:00:00Z');
     const dateJour = formatDateFrench(getDateForDayName(start, jour) || start);
 
-    // Prompt (JSON strict)
     const prompt = `
 Tu es un enseignant du secondaire. Produis un plan de leçon COMPLET pour une séance de 45 minutes.
 Retourne STRICTEMENT du JSON (aucun texte hors JSON) avec les clés EXACTES ci-dessous.
@@ -388,13 +382,11 @@ Si l'entrée est vide, propose du contenu raisonnable pour ${matiere}.
     try {
       plan = JSON.parse(txt);
     } catch {
-      // dernier recours: extraction accolades
       const s = txt.indexOf('{'), e = txt.lastIndexOf('}');
       if (s !== -1 && e !== -1 && e > s) plan = JSON.parse(txt.slice(s, e + 1));
       else return res.status(502).json({ message: 'Réponse IA non JSON.' });
     }
 
-    // Charger modèle DOCX
     const resp = await fetch(LESSON_TEMPLATE_URL);
     if (!resp.ok) return res.status(500).json({ message: 'Modèle DOCX (plan de leçon) introuvable.' });
     const templateBuffer = Buffer.from(await resp.arrayBuffer());
@@ -402,7 +394,6 @@ Si l'entrée est vide, propose du contenu raisonnable pour ${matiere}.
     const zip = new PizZip(templateBuffer);
     const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true, nullGetter: () => '' });
 
-    // Données pour le template
     const data = {
       Matiere: matiere,
       Classe: classe,
