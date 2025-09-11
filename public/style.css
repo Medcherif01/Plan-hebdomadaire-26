@@ -26,12 +26,18 @@ body {
     background: var(--bg);
     color: var(--text);
     margin: 0;
-    padding: 20px;
+    padding: 0; /* Supprime l'espacement autour de tout le contenu */
+    min-height: 100vh;
+}
+
+/* Style pour le formulaire de connexion centré */
+#login-form-container {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
     min-height: 100vh;
-    overflow-x: hidden; /* Empêche le défilement horizontal */
+    padding: 20px;
 }
 
 #login-form {
@@ -146,14 +152,12 @@ body {
     background: var(--accent-hover);
 }
 
+/* Contenu principal qui prend toute la largeur */
 #main-content {
-    max-width: 95%; /* Augmenté pour être plus large */
-    margin: auto;
-    background: var(--surface);
-    padding: 20px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
     width: 100%;
+    min-height: 100vh; /* S'assure qu'il remplit la hauteur de l'écran */
+    background: var(--surface);
+    padding: 20px; /* Garde un peu d'espace à l'intérieur du conteneur */
 }
 
 .main-header-container {
@@ -213,7 +217,7 @@ body {
 }
 
 #planTable {
-    width: 100%; /* S'assure que le tableau prend toute la largeur de son conteneur */
+    width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
