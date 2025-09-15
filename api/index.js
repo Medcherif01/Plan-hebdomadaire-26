@@ -24,11 +24,12 @@ if (!MONGO_URL) console.error('FATAL: MONGO_URL n\'est pas définie.');
 if (process.env.GEMINI_API_KEY) {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     // =========================================================
-    // =========== CORRECTION DE L'ERREUR 404 NOT FOUND ========
-    // On utilise le nom de modèle correct, sans "-latest"
-    geminiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // =========== CORRECTION DÉFINITIVE DU MODÈLE GEMINI ========
+    // Utilise la variable d'environnement, avec "gemini-1.5-flash" par défaut.
+    const modelName = process.env.GEMINI_MODEL_NAME || "gemini-1.5-flash";
+    geminiModel = genAI.getGenerativeModel({ model: modelName });
     // =========================================================
-    console.log('✅ SDK Google Gemini initialisé.');
+    console.log(`✅ SDK Google Gemini initialisé avec le modèle : ${modelName}.`);
 } else {
     console.warn('⚠️ GEMINI_API_KEY non défini. La fonctionnalité IA sera désactivée.');
 }
@@ -39,7 +40,6 @@ const validUsers = {
     "Majed": "Majed", "Mohamed Ali": "Mohamed Ali", "Morched": "Morched", "Saeed": "Saeed",
     "Sami": "Sami", "Sylvano": "Sylvano", "Tonga": "Tonga", "Youssef": "Youssef", "Zine": "Zine"
 };
-
 const arabicTeachers = ['Majed', 'Jaber', 'Saeed'];
 const englishTeachers = ['Kamel'];
 
